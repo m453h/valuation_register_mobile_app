@@ -1,0 +1,72 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/main_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/app_bar"
+        layout="@layout/app_bar" />
+
+
+    <LinearLayout
+        android:id="@+id/activity_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <ProgressBar
+            android:id="@+id/login_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
+
+        <ScrollView
+            android:id="@+id/login_form"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="60dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/mURLAPILayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:orientation="vertical"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="10dp"
+                    android:paddingRight="16dp"
+                    android:paddingBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/mAPIURLLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/api_url"
+                        android:textColor="#787575"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/mAPIURL"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:textColor="#000000"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
