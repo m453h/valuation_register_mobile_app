@@ -6,7 +6,6 @@ package com.aru.valuationregister.MenuActivities;
 
 public class MenuData {
 
-
     String name;
     String description;
     int image;

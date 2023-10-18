@@ -5,15 +5,16 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
 /**
  * Created by michael.nkotagu on 6/24/2015.
  */
-public class MenuRecyclerItemClickListener implements RecyclerView.OnItemTouchListener  {
+public class MenuRecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
 
-    private OnItemClickListener mListener;
+    private final OnItemClickListener mListener;
 
     public interface OnItemClickListener {
         public void onItemClick(View view, int position);
@@ -23,25 +24,26 @@ public class MenuRecyclerItemClickListener implements RecyclerView.OnItemTouchLi
 
     public MenuRecyclerItemClickListener(Context context, OnItemClickListener listener) {
         mListener = listener;
-        mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return true;
-            }
-        });
+        mGestureDetector = new GestureDetector(context,
+                new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onSingleTapUp(MotionEvent e) {
+                        return true;
+                    }
+                });
     }
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
         View childView = view.findChildViewUnder(e.getX(), e.getY());
         if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
-            mListener.onItemClick(childView, view.getChildPosition(childView));
+            mListener.onItemClick(childView, view.getChildLayoutPosition(childView));
         }
         return false;
     }
 
     @Override
-    public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {
+    public void onTouchEvent(@NonNull RecyclerView view, @NonNull MotionEvent motionEvent) {
 
     }
 
@@ -49,7 +51,6 @@ public class MenuRecyclerItemClickListener implements RecyclerView.OnItemTouchLi
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
     }
-
 
 }
 

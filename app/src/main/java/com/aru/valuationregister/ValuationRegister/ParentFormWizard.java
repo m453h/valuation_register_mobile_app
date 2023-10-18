@@ -204,12 +204,7 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
         new AlertDialog.Builder(this)
                 .setTitle(R.string.h_confirm_exit)
                 .setMessage(R.string.p_confirm_close)
-                .setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                    }
-                })
+                .setPositiveButton(R.string.action_yes, (dialogInterface, i) -> finish())
                 .setNegativeButton(R.string.action_no,null)
                 .show();
     }

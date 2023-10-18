@@ -28,6 +28,5 @@ public class MenuItem {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
 
 }

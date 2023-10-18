@@ -1,17 +1,17 @@
 package com.aru.valuationregister.MenuActivities;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,14 +19,10 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.aru.valuationregister.R;
 import com.aru.valuationregister.Rest.Action;
 import com.aru.valuationregister.SettingsActivity;
 import com.aru.valuationregister.ValuationRegister.ParentFormWizard;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -35,12 +31,7 @@ import java.util.ArrayList;
  */
 public class MainMenuActivity extends AppCompatActivity {
 
-    //Android Variables
-    private Toolbar toolbar;
-    private static RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
     private static RecyclerView recyclerView;
-    private static ArrayList<MenuData> items;
     static View.OnClickListener myOnClickListener;
     private SharedPreferences prefs;
     private String version;
@@ -56,9 +47,7 @@ public class MainMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
 
         mProgressDialog = new ProgressDialog(this);
-
-        toolbar = findViewById(R.id.app_bar);
-
+        Toolbar toolbar = findViewById(R.id.app_bar);
         prefs = getApplicationContext().getSharedPreferences("VALUATION_REGISTER", MODE_PRIVATE);
 
         setSupportActionBar(toolbar);
@@ -68,17 +57,32 @@ public class MainMenuActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView = findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
-
-
-        layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        items = new ArrayList<>();
-        MenuBuilder myMenu = new MenuBuilder("MainMenuActivity");
 
+        RecyclerView.Adapter<MenuMyAdapter.MyViewHolder> adapter =
+                new MenuMyAdapter(getApplicationMenuItems());
+        recyclerView.setAdapter(adapter);
+        handleRecyclerViewClickEvent();
+        version = Action.getApplicationVersion(getApplicationContext());
+
+        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                confirmExit();
+            }
+        };
+        OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback);
+    }
+
+    private ArrayList<MenuData> getApplicationMenuItems(){
+        ArrayList<MenuData> items = new ArrayList<>();
+        MenuBuilder myMenu = new MenuBuilder("MainMenuActivity");
 
         for (int i = 0; i < myMenu.nameArray.length; i++) {
             items.add(
@@ -89,87 +93,71 @@ public class MainMenuActivity extends AppCompatActivity {
                     )
             );
         }
-
-
-        adapter = new MenuMyAdapter(items);
-        recyclerView.setAdapter(adapter);
-
-
-        recyclerView.addOnItemTouchListener(
-                new MenuRecyclerItemClickListener(this.getApplicationContext(), new MenuRecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        int selectedItemPosition = recyclerView.getChildPosition(view);
-                        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForPosition(selectedItemPosition);
-
-                        TextView textViewName = viewHolder.itemView.findViewById(R.id.textViewName);
-                        String selectedName = (String) textViewName.getText();
-                        switch (selectedName) {
-                            case "Valuation Register":
-                                Intent intent = new Intent(getApplicationContext(), ParentFormWizard.class);
-                                startActivity(intent);
-                                break;
-
-                            case "Settings":
-                                intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                                intent.putExtra("callingActivity", "Internal");
-                                startActivity(intent);
-                                break;
-
-                            case "Upload Data":
-
-                                new AlertDialog.Builder(MainMenuActivity.this)
-                                        .setTitle("Data Upload Status")
-                                        .setMessage(counter + " Record(s) found press OK to begin data upload")
-                                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-                                            }
-                                        })
-                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                            }
-                                        })
-                                        .show();
-                                break;
-
-                            case "Fetch Updates":
-                                new AlertDialog.Builder(MainMenuActivity.this)
-                                        .setTitle("Update Status")
-                                        .setMessage("Application will exit to check for updates")
-                                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-                                                getUpdates();
-                                            }
-                                        })
-                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                            }
-                                        })
-                                        .show();
-                                break;
-
-                            default:
-                                new AlertDialog.Builder(MainMenuActivity.this)
-                                        .setTitle("Feature Not Allowed")
-                                        .setMessage("Mobile phone is not allowed to perform this action ")
-                                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                            }
-                                        }).show();
-                                break;
-                        }
-                    }
-                })
-        );
-
-
-        version = Action.getApplicationVersion(getApplicationContext());
-
+        return items;
     }
 
+    private void handleRecyclerViewClickEvent() {
+        recyclerView.addOnItemTouchListener(
+                new MenuRecyclerItemClickListener(this.getApplicationContext(),
+                        (view, position) -> {
+                            int selectedItemPosition = recyclerView.getChildLayoutPosition(view);
+                            RecyclerView.ViewHolder viewHolder = recyclerView.
+                                    findViewHolderForAdapterPosition(selectedItemPosition);
+
+                            assert viewHolder != null;
+                            TextView textViewName = viewHolder.itemView.
+                                    findViewById(R.id.textViewName);
+                            String selectedName = (String) textViewName.getText();
+                            switch (selectedName) {
+                                case "Create a new Record":
+                                    Intent intent = new Intent(getApplicationContext(),
+                                            ParentFormWizard.class);
+                                    startActivity(intent);
+                                    break;
+
+                                case "Settings":
+                                    intent = new Intent(getApplicationContext(),
+                                            SettingsActivity.class);
+                                    intent.putExtra("callingActivity", "Internal");
+                                    startActivity(intent);
+                                    break;
+
+                                case "Upload Data":
+
+                                    new AlertDialog.Builder(MainMenuActivity.this)
+                                            .setTitle("Data Upload Status")
+                                            .setMessage(counter + " Record(s) found press OK to begin data upload")
+                                            .setPositiveButton("Ok", (dialog, whichButton) -> {
+                                            })
+                                            .setNegativeButton("Cancel", (dialog, whichButton) -> {
+
+                                            })
+                                            .show();
+                                    break;
+
+                                case "Fetch Updates":
+                                    new AlertDialog.Builder(MainMenuActivity.this)
+                                            .setTitle("Update Status")
+                                            .setMessage("Application will exit to check for updates")
+                                            .setPositiveButton("Ok", (dialog, whichButton) -> getUpdates())
+                                            .setNegativeButton("Cancel", (dialog, whichButton) -> {
+
+                                            })
+                                            .show();
+                                    break;
+
+                                default:
+                                    new AlertDialog.Builder(MainMenuActivity.this)
+                                            .setTitle("Feature Not Allowed")
+                                            .setMessage("Mobile phone is not allowed to perform this action ")
+                                            .setPositiveButton("Ok", (dialog, whichButton) -> {
+
+                                            }).show();
+                                    break;
+                            }
+                        })
+        );
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -179,87 +167,12 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
 
-
     public void removeAuthToken() {
         prefs.edit().remove("AuthToken").apply();
     }
 
-    private Response.Listener<JSONObject> createMyReqSuccessListener() {
-        return new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(final JSONObject response) {
-
-                counter--;
-
-                Log.e("VALUATION_REGISTER", "Remainder is: " + counter + "");
-
-                //Check status of last upload and delete it
-                final String status = Action.getFieldValue(response, "status");
-
-                if (status.equals("PASS") || status.equals("DUPLICATE")) {
-                    Log.e("VALUATION_REGISTER", "Deleted data");
-                }
-
-                if (counter == 0) {
-                    mProgressDialog.dismiss();
-
-                    new AlertDialog.Builder(MainMenuActivity.this)
-                            .setTitle(R.string.h_results)
-                            .setMessage(R.string.data_uploaded)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-
-                                }
-                            }).show();
-                } else {
-                }
-
-
-            }
-        };
-    }
-
-    private Response.ErrorListener createMyReqErrorListener() {
-        return new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError ex) {
-                String message = Action.parseErrorResponse(ex);
-                mProgressDialog.dismiss();
-
-                new AlertDialog.Builder(MainMenuActivity.this)
-                        .setTitle(R.string.h_error_details)
-                        .setMessage(message + "\n\n" + getResources().getString(R.string.offline_upload))
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
-                            }
-                        })
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
-
-                            }
-                        }).show();
-
-
-            }
-        };
-    }
-
-
-    public String getBase64ImageFromUri(String myStr, JSONObject object) {
-        try {
-            Uri myUri = Uri.parse(Action.getValue(object, myStr));
-            return Action.encodeBmp(Action.getProperImage(myUri));
-        } catch (NullPointerException ex) {
-            return null;
-        }
-
-    }
-
-
     public void getUpdates() {
-        final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+        final String appPackageName = getPackageName();
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
         } catch (android.content.ActivityNotFoundException e) {
@@ -271,20 +184,9 @@ public class MainMenuActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.h_confirm_exit)
                 .setMessage(R.string.p_confirm_close_app)
-                .setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                    }
-                })
+                .setPositiveButton(R.string.action_yes, (dialogInterface, i) -> finish())
                 .setNegativeButton(R.string.action_no, null)
                 .show();
-    }
-
-    @Override
-    public void onBackPressed() {
-        confirmExit();
-        super.onBackPressed();
     }
 
 }

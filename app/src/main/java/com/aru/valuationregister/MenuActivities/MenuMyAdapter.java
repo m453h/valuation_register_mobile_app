@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aru.valuationregister.R;
@@ -19,14 +20,13 @@ import java.util.ArrayList;
 
 public class MenuMyAdapter extends RecyclerView.Adapter<MenuMyAdapter.MyViewHolder> {
 
-    private ArrayList<MenuData> menuDataSet;
+    private final ArrayList<MenuData> menuDataSet;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView textViewName;
         TextView textViewDescription;
         ImageView imageViewIcon;
-
         public MyViewHolder(View itemView) {
             super(itemView);
             this.textViewName = (TextView) itemView.findViewById(R.id.textViewName);
@@ -39,6 +39,7 @@ public class MenuMyAdapter extends RecyclerView.Adapter<MenuMyAdapter.MyViewHold
         this.menuDataSet = items;
     }
 
+    @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -46,8 +47,7 @@ public class MenuMyAdapter extends RecyclerView.Adapter<MenuMyAdapter.MyViewHold
 
         view.setOnClickListener(MainMenuActivity.myOnClickListener);
 
-        MyViewHolder myViewHolder = new MyViewHolder(view);
-        return myViewHolder;
+        return new MyViewHolder(view);
     }
 
     @Override

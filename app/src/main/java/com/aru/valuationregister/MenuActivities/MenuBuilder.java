@@ -15,28 +15,24 @@ public class MenuBuilder {
     public MenuBuilder(String selection) {
         if (selection.equals("MainMenuActivity"))
         {
-            this.nameArray = new String[5];
-            this.descriptionArray = new String[5];
-            this.drawableArray = new int[5];
+            this.nameArray = new String[4];
+            this.descriptionArray = new String[4];
+            this.drawableArray = new int[4];
 
-            this.nameArray[0] = "Court Registration";
-            this.nameArray[1] = "Upload Missing Images";
-            this.nameArray[2] = "Fetch Updates";
-            this.nameArray[3] = "Upload Data";
-            this.nameArray[4] = "Settings";
+            this.nameArray[0] = "Create a new Record";
+            this.nameArray[1] = "Fetch Updates";
+            this.nameArray[2] = "Upload Data";
+            this.nameArray[3] = "Settings";
 
-            this.descriptionArray[0] = "Add court details";
-            this.descriptionArray[1] = "Upload Missing Court Images";
-            this.descriptionArray[2] = "Download application data";
-            this.descriptionArray[3] = "Upload offline data";
-            this.descriptionArray[4] = "Change your Device Configurations";
+            this.descriptionArray[0] = "Add a plot or property valuation record";
+            this.descriptionArray[1] = "Download application data";
+            this.descriptionArray[2] = "Upload offline data";
+            this.descriptionArray[3] = "Change your Device Configurations";
 
             this.drawableArray[0] = R.drawable.menu_create;
-            this.drawableArray[1] = R.drawable.menu_camera;
-            this.drawableArray[2] = R.drawable.menu_download;
-            this.drawableArray[3] = R.drawable.menu_upload;
-            this.drawableArray[4] = R.drawable.menu_settings;
-
+            this.drawableArray[1] = R.drawable.menu_download;
+            this.drawableArray[2] = R.drawable.menu_upload;
+            this.drawableArray[3] = R.drawable.menu_settings;
         }
     }
 }
