@@ -19,7 +19,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.aru.valuationregister.Database.MyDataSource;
 import com.aru.valuationregister.Rest.Action;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -34,7 +33,6 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
     private TextView mAPIURLView;
     private SharedPreferences prefs;
     private ProgressDialog mProgressDialog;
-    private MyDataSource db;
     private Toolbar toolbar;
 
     private EditText inputText;

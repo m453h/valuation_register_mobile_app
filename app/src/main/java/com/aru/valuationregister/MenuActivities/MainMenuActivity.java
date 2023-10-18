@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -20,20 +19,13 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.aru.valuationregister.Database.MyDataSource;
-import com.aru.valuationregister.LoginActivity;
 import com.aru.valuationregister.R;
 import com.aru.valuationregister.Rest.Action;
 import com.aru.valuationregister.SettingsActivity;
 import com.aru.valuationregister.ValuationRegister.ParentFormWizard;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -54,9 +46,6 @@ public class MainMenuActivity extends AppCompatActivity {
     private String version;
     private ProgressDialog mProgressDialog;
 
-
-    private MyDataSource db;
-
     private int counter;
     private String localRecordId;
 
@@ -71,8 +60,6 @@ public class MainMenuActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.app_bar);
 
         prefs = getApplicationContext().getSharedPreferences("VALUATION_REGISTER", MODE_PRIVATE);
-
-        db = new MyDataSource(getApplicationContext());
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Valuation Register Menu");
@@ -130,14 +117,12 @@ public class MainMenuActivity extends AppCompatActivity {
                                 break;
 
                             case "Upload Data":
-                                counter = db.getRecordIdentifier(new String[]{"COUNT (_id)"}, "tbl_court_data", null, null);
 
                                 new AlertDialog.Builder(MainMenuActivity.this)
                                         .setTitle("Data Upload Status")
                                         .setMessage(counter + " Record(s) found press OK to begin data upload")
                                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
-                                                sendDataToSync();
                                             }
                                         })
                                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -199,45 +184,6 @@ public class MainMenuActivity extends AppCompatActivity {
         prefs.edit().remove("AuthToken").apply();
     }
 
-    public boolean sendDataToSync() {
-        String[] data;
-
-        data = db.getRecentCourtData();
-
-        localRecordId = data[0];
-        if (data[1] != null) {
-            try {
-                JSONObject message = new JSONObject(data[1]);
-                message.put("courtBmpOne", getBase64ImageFromUri("courtBmpOne", message));
-                message.put("courtBmpTwo", getBase64ImageFromUri("courtBmpTwo", message));
-                message.put("courtBmpThree", getBase64ImageFromUri("courtBmpThree", message));
-                message.put("courtBmpFour", getBase64ImageFromUri("courtBmpFour", message));
-
-                String URL = Action.getRequestURL("/api/submitCourtForm");
-
-                JsonObjectRequest myReq = new JsonObjectRequest(Request.Method.POST, URL, message, createMyReqSuccessListener(), createMyReqErrorListener());
-
-                RequestQueue queue = Action.getInstance(getApplicationContext()).getRequestQueue();
-
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setMessage(getResources().getString(R.string.loader_text));
-                mProgressDialog.setCancelable(false);
-                mProgressDialog.show();
-
-                myReq.setRetryPolicy(new DefaultRetryPolicy(30000,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                queue.add(myReq);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-        return true;
-    }
-
-
     private Response.Listener<JSONObject> createMyReqSuccessListener() {
         return new Response.Listener<JSONObject>() {
             @Override
@@ -251,7 +197,6 @@ public class MainMenuActivity extends AppCompatActivity {
                 final String status = Action.getFieldValue(response, "status");
 
                 if (status.equals("PASS") || status.equals("DUPLICATE")) {
-                    db.deleteCourtData(localRecordId);
                     Log.e("VALUATION_REGISTER", "Deleted data");
                 }
 
@@ -267,7 +212,6 @@ public class MainMenuActivity extends AppCompatActivity {
                                 }
                             }).show();
                 } else {
-                    sendDataToSync();
                 }
 
 

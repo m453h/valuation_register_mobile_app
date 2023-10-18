@@ -1,42 +1,21 @@
 package com.aru.valuationregister.ValuationRegister;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.aru.valuationregister.Database.MyDataSource;
 import com.aru.valuationregister.R;
-import com.aru.valuationregister.Rest.Action;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -58,7 +37,6 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
     private Bundle formData;
 
-    private MyDataSource db;
 
 
     @Override
@@ -68,7 +46,6 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
         mProgressDialog = new ProgressDialog(this);
 
-        db = new MyDataSource(getApplicationContext());
 
 
         Toolbar toolbar = findViewById(R.id.app_bar);

@@ -42,8 +42,7 @@ public class Action {
     private static String PARENT_URL;
 
 
-    private Action(Context context)
-    {
+    private Action(Context context) {
         mCtx = context;
         mRequestQueue = getRequestQueue();
     }
@@ -69,25 +68,22 @@ public class Action {
 
         String apiURL = prefs.getString("apiURL", null);
 
-        if(apiURL == null || 1 == 1)
-        {
+        if (apiURL == null || 1 == 1) {
             String defaultURL = "http://192.168.43.71:8000/api/client";
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("apiURL", defaultURL);
             editor.apply();
-            apiURL=defaultURL;
+            apiURL = defaultURL;
         }
 
         Action.PARENT_URL = apiURL;
     }
 
-    public static String getParentUrl()
-    {
+    public static String getParentUrl() {
         return Action.PARENT_URL;
     }
 
-    public RequestQueue getRequestQueue()
-    {
+    public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
             // getApplicationContext() is key, it keeps you from leaking the
             // Activity or BroadcastReceiver if someone passes one in.
@@ -96,58 +92,50 @@ public class Action {
         return mRequestQueue;
     }
 
-    public <T> void addToRequestQueue(Request<T> req)
-    {
+    public <T> void addToRequestQueue(Request<T> req) {
         getRequestQueue().add(req);
     }
 
-    public static String getRequestURL(String url)
-    {
-        return PARENT_URL+url;
+    public static String getRequestURL(String url) {
+        return PARENT_URL + url;
     }
 
-    public static synchronized  String parseErrorResponse(VolleyError ex){
+    public static synchronized String parseErrorResponse(VolleyError ex) {
 
         String message;
 
         if (ex instanceof TimeoutError || ex instanceof NoConnectionError) {
-            message="Connection could not be established";
+            message = "Connection could not be established";
         } else if (ex instanceof AuthFailureError) {
-            message="HTTP Authentication Could not be done";
+            message = "HTTP Authentication Could not be done";
         } else if (ex instanceof ServerError) {
-            message="Server error";
+            message = "Server error";
         } else if (ex instanceof NetworkError) {
-            message="Network error";
+            message = "Network error";
         } else if (ex instanceof ParseError) {
-            message="Parse error";
-        }
-        else{
-            message="Unknown error";
+            message = "Parse error";
+        } else {
+            message = "Unknown error";
         }
         return message;
     }
 
-    public static synchronized  String getValue(JSONObject object, String key)
-    {
-        try
-        {
+    public static synchronized String getValue(JSONObject object, String key) {
+        try {
             return object.get(key).toString();
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            // e.printStackTrace();
         }
 
         return null;
     }
 
-    public static synchronized String getFieldValue(JSONObject response,String field){
-        String responseCode="";
+    public static synchronized String getFieldValue(JSONObject response, String field) {
+        String responseCode = "";
         try {
 
-            responseCode=response.getString(field);
-        }
-        catch(JSONException ex){
+            responseCode = response.getString(field);
+        } catch (JSONException ex) {
 
         }
         return responseCode;
@@ -167,23 +155,19 @@ public class Action {
     }
 
 
-    public static boolean strCompare(String strOne,String strTwo){
-        try
-        {
-            if (strOne.equals(strTwo))
-            {
+    public static boolean strCompare(String strOne, String strTwo) {
+        try {
+            if (strOne.equals(strTwo)) {
                 return true;
             }
-        }
-        catch (NullPointerException e)
-        {
+        } catch (NullPointerException e) {
 
         }
 
         return false;
     }
 
-    public static synchronized String encodeBmp(Bitmap bmp){
+    public static synchronized String encodeBmp(Bitmap bmp) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
@@ -192,28 +176,24 @@ public class Action {
     }
 
 
-    public static Bitmap getProperImage(Uri fileUri)
-    {
+    public static Bitmap getProperImage(Uri fileUri) {
         BitmapFactory.Options opts = new BitmapFactory.Options();
 
-        opts.inSampleSize=4;
+        opts.inSampleSize = 4;
 
         Bitmap bm = BitmapFactory.decodeFile(fileUri.getPath(), opts);
 
         ExifInterface exif = null;
 
-        try
-        {
+        try {
             exif = new ExifInterface(fileUri.getPath());
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         String orientString = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
 
-        int orientation = orientString != null ? Integer.parseInt(orientString) :  ExifInterface.ORIENTATION_NORMAL;
+        int orientation = orientString != null ? Integer.parseInt(orientString) : ExifInterface.ORIENTATION_NORMAL;
 
         int rotationAngle = 0;
 
@@ -227,42 +207,36 @@ public class Action {
 
         Bitmap rotatedBitmap = Bitmap.createBitmap(bm, 0, 0, opts.outWidth, opts.outHeight, matrix, true);
 
-        rotatedBitmap=getResizedBitmap(rotatedBitmap,800);
+        rotatedBitmap = getResizedBitmap(rotatedBitmap, 800);
 
         return rotatedBitmap;
     }
 
-    public static Bitmap getResizedBitmap(Bitmap image,int maxWidth) {
+    public static Bitmap getResizedBitmap(Bitmap image, int maxWidth) {
 
         int currentBitmapWidth = image.getWidth();
         int currentBitmapHeight = image.getHeight();
 
-        int newHeight=0;
+        int newHeight = 0;
 
-        if(currentBitmapWidth >maxWidth)
-        {
+        if (currentBitmapWidth > maxWidth) {
             newHeight = (currentBitmapHeight * maxWidth) / currentBitmapWidth;
-        }
-        else
-        {
+        } else {
             newHeight = currentBitmapHeight;
 
             maxWidth = currentBitmapWidth;
         }
 
-        return  Bitmap.createScaledBitmap(image, maxWidth, newHeight, true);
+        return Bitmap.createScaledBitmap(image, maxWidth, newHeight, true);
     }
 
-    public static String getApplicationVersion(Context ctx){
+    public static String getApplicationVersion(Context ctx) {
         PackageManager manager = ctx.getPackageManager();
         PackageInfo info;
-        try
-        {
+        try {
             info = manager.getPackageInfo(ctx.getPackageName(), 0);
             return info.versionName;
-        }
-        catch (PackageManager.NameNotFoundException e)
-        {
+        } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 

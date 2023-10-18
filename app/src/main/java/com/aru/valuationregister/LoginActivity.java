@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -11,14 +12,21 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.aru.valuationregister.Database.AppDatabase;
+import com.aru.valuationregister.Database.AppExecutors;
+import com.aru.valuationregister.Database.Models.Configuration;
 import com.aru.valuationregister.MenuActivities.MainMenuActivity;
 import com.aru.valuationregister.Rest.Action;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
+import java.util.Objects;
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -27,7 +35,9 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
 
     private SharedPreferences prefs;
+    private AppDatabase db;
 
+    private String dataChecksum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +47,8 @@ public class LoginActivity extends AppCompatActivity {
         prefs = getApplicationContext().
                 getSharedPreferences("VALUATION_REGISTER", MODE_PRIVATE);
 
-        Action.initialize(prefs); // Initialize action with global shared preferences
+        // Initialize action with global shared preferences
+        Action.initialize(prefs);
 
         mProgressDialog = new ProgressDialog(this);
 
@@ -55,6 +66,12 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        db = AppDatabase.getInstance(getApplicationContext());
+        dataChecksum = prefs.getString("dataChecksum", null);
+
+        if (prefs.getString("AuthToken", null) != null) {
+            getNextActivity();
+        }
     }
 
     private void handleLoginEvent() {
@@ -104,80 +121,110 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setMessage(getResources().getString(R.string.loader_text));
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.show();
-
         JsonObjectRequest myReq = new JsonObjectRequest(Request.Method.POST, URL, message,
-                createMyReqSuccessListener(),
-                createMyReqErrorListener()
+                response -> {
+                    String status = Action.getValue(response, "status");
+                    String statusDescription = Action.getValue(response, "status_description");
+
+                    if (status != null) {
+                        if (!status.equals("PASS")) {
+                            mProgressDialog.dismiss();
+                            new AlertDialog.Builder(LoginActivity.this)
+                                    .setTitle(R.string.h_login_failure)
+                                    .setMessage(statusDescription)
+                                    .setCancelable(false)
+                                    .setPositiveButton(android.R.string.yes, (dialog, id) -> {
+                                    }).show();
+                        } else {
+                            String remoteDataChecksum = Action.
+                                    getFieldValue(response, "checksum");
+                            String authToken = Action.
+                                    getFieldValue(response, "token");
+
+                            setAuthToken(authToken);
+
+                            if (!Objects.equals(dataChecksum, remoteDataChecksum)) {
+                                sendConfigurationDataRequest(authToken);
+                            } else {
+                                mProgressDialog.dismiss();
+                                getNextActivity();
+                            }
+                        }
+                    }
+                },
+                ex -> {
+                    String msg = Action.parseErrorResponse(ex);
+                    mProgressDialog.dismiss();
+                    new AlertDialog.Builder(LoginActivity.this)
+                            .setTitle(R.string.h_login_failure)
+                            .setMessage(msg)
+                            .setNeutralButton(R.string.view_settings, (dialog, id) -> {
+                                Intent intent = new Intent(getApplicationContext(),
+                                        SettingsActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                                finish();
+                            })
+                            .setNegativeButton(android.R.string.no, (dialog, id) -> finish())
+                            .setPositiveButton(R.string.action_continue, (dialog, id) ->
+                                    getNextActivity()).show();
+
+                }
         );
 
         Action.getInstance(getApplicationContext()).addToRequestQueue(myReq);
     }
 
-    private Response.Listener<JSONObject> createMyReqSuccessListener() {
-        return response -> {
-            mProgressDialog.dismiss();
-            int header = R.string.h_login_failure;
-            String status = Action.getValue(response, "status");
-            String statusDescription = Action.getValue(response, "status_description");
+    private void sendConfigurationDataRequest(String authToken) {
 
-            if (status != null) {
-                if (!status.equals("PASS")) {
-                    new AlertDialog.Builder(LoginActivity.this)
-                            .setTitle(header)
-                            .setMessage(statusDescription)
-                            .setCancelable(false)
-                            .setPositiveButton(android.R.string.yes, (dialog, id) -> {
+        String URL = Action.getRequestURL("/configurations");
+        JSONObject message = new JSONObject();
 
-                            }).show();
-                } else {
-                    /*try {
-                        db.cleanLocationData();
-                        JSONArray regions = new JSONArray(Action.getValue(response, "regions"));
-                        JSONArray districts = new JSONArray(Action.getValue(response, "districts"));
-                        JSONArray wards = new JSONArray(Action.getValue(response, "wards"));
-                        if (
-                                db.recordData(regions, "regions") &&
-                                        db.recordData(districts, "districts") &&
-                                        db.recordData(wards, "wards")
-                        ) {
-                            setAuthToken(Action.getValue(response, "token"));
+        try {
+            message.put("token", authToken);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL, message,
+                response -> {
+                    mProgressDialog.dismiss();
+
+                    String status = Action.getValue(response, "status");
+                    String statusDescription = Action.getValue(response, "status_description");
+
+                    if (Objects.equals(status, "PASS")) {
+                        try {
+                            JSONArray configurations = new JSONArray(Action.getValue(response,
+                                    "configuration"));
+
+                            addConfigurationDataToDatabase(configurations);
                             getNextActivity();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }*/
+                    } else {
+                        new AlertDialog.Builder(LoginActivity.this)
+                                .setTitle(R.string.h_login_failure)
+                                .setMessage(statusDescription)
+                                .setCancelable(false)
+                                .setPositiveButton(android.R.string.yes, (dialog, id) -> {
+                                }).show();
+                    }
+                },
+                error -> {
+                    mProgressDialog.dismiss();
                 }
-            }
-        };
+        );
+
+        Action.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
 
-    private Response.ErrorListener createMyReqErrorListener() {
-        return ex -> {
-            String message = Action.parseErrorResponse(ex);
-            mProgressDialog.dismiss();
-            new AlertDialog.Builder(LoginActivity.this)
-                    .setTitle(R.string.h_login_failure)
-                    .setMessage(message)
-                    .setNeutralButton(R.string.view_settings, (dialog, id) -> {
-                        Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                        finish();
-                    })
-                    .setNegativeButton(android.R.string.no, (dialog, id) -> finish())
-                    .setPositiveButton(R.string.action_continue, (dialog, id) -> getNextActivity()).show();
-
-        };
-    }
 
     public boolean setAuthToken(String authToken) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("AuthToken", authToken);
-        editor.apply(); //commit changes
+        editor.apply();
         return true;
     }
 
@@ -187,5 +234,39 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    private void addConfigurationDataToDatabase(final JSONArray configurations) {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            db.configurationDao().deleteAll();
+            if (configurations != null) {
+                for (int i = 0; i < configurations.length(); i++) {
+                    try {
+                        JSONObject config = configurations.getJSONObject(i);
+                        Configuration configuration = new Configuration(
+                                config.getString("id"),
+                                config.getString("description"),
+                                config.getString("type")
+                        );
+                        db.configurationDao().insertAll(configuration);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+    }
+
+    private void getAllFromDb() {
+
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            List<Configuration> configurations = db.configurationDao().getAll();
+            for (Configuration config : configurations) {
+                Log.wtf("VALUATION_REGISTER", config.description);
+                runOnUiThread(() -> {
+                });
+            }
+        });
+    }
+
 
 }
