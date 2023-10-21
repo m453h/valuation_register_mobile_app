@@ -8,10 +8,12 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.aru.valuationregister.R;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,20 @@ public class FormStepOne extends Fragment {
     private AutoCompleteTextView streetTextView;
 
     private AutoCompleteTextView landPlotsTextView;
+
+    private AutoCompleteTextView isNeighbourOfValuableProjectTextView;
+
+    private TextInputLayout roadNameInputLayout;
+
+    private TextInputLayout projectNameInputLayout;
+
+    private EditText notableLandmarksEditText;
+
+    private EditText accessibilityRoadNameEditText;
+
     private EditText propertyAccessibilityEditText;
+
+    private EditText valuableProjectNameEditText;
     private ParentFormWizard parentFormWizard;
 
     private Intent intent;
@@ -42,9 +57,15 @@ public class FormStepOne extends Fragment {
         View v = inflater.inflate(R.layout.form_step_1, container, false);
 
         // Get ui form widgets
-        streetTextView = v.findViewById(R.id.streetTextView);
-        landPlotsTextView = v.findViewById(R.id.landPlotsTextView);
-        propertyAccessibilityEditText = v.findViewById(R.id.propertyAccessibility);
+        streetTextView = v.findViewById(R.id.street_text_view);
+        landPlotsTextView = v.findViewById(R.id.land_plots_text_view);
+        propertyAccessibilityEditText = v.findViewById(R.id.property_accessibility_edit_text);
+        isNeighbourOfValuableProjectTextView = v.findViewById(R.id.is_neighbour_of_valuable_project_text_view);
+        roadNameInputLayout = v.findViewById(R.id.accessibility_road_name_input_layout);
+        projectNameInputLayout = v.findViewById(R.id.valuable_project_name_input_layout);
+        notableLandmarksEditText = v.findViewById(R.id.notable_landmarks);
+        accessibilityRoadNameEditText = v.findViewById(R.id.accessibility_road_name);
+        valuableProjectNameEditText = v.findViewById(R.id.valuable_project_name_edit_text);
 
         //Set the intent used to persist data across fragments
         intent = requireActivity().getIntent();
@@ -77,6 +98,9 @@ public class FormStepOne extends Fragment {
             parentFormWizard.initializeDropdownLists(config);
         }
 
+        parentFormWizard.initializeSimpleDropdownLists(isNeighbourOfValuableProjectTextView,
+                new String[]{"Yes", "No"});
+
         // Set a listener for village-streets dropdown item to get selected id
         streetTextView.setOnItemClickListener((parent, view, position, id) -> {
             parentFormWizard.getConfigurationItemId("villages-and-streets",
@@ -98,6 +122,7 @@ public class FormStepOne extends Fragment {
         // Set a listener for multiple property accessibility selected from dialog interface
         propertyAccessibilityIds = new ArrayList<>();
         getPropertyAccessibilityText = new ArrayList<>();
+
         propertyAccessibilityEditText.setOnClickListener(v1 ->
                 parentFormWizard.
                         getDialogSelector(propertyAccessibilityEditText,
@@ -107,11 +132,15 @@ public class FormStepOne extends Fragment {
                                                 add(configuration.configurationId);
                                         getPropertyAccessibilityText.
                                                 add(configuration.description);
+                                        if (configuration.description.equals("Through Roads"))
+                                            roadNameInputLayout.setVisibility(View.VISIBLE);
                                     } else if (type.equals("unchecked")) {
                                         propertyAccessibilityIds.
                                                 remove(configuration.configurationId);
                                         getPropertyAccessibilityText.
                                                 remove(configuration.description);
+                                        if (configuration.description.equals("Through Roads"))
+                                            roadNameInputLayout.setVisibility(View.GONE);
                                     }
                                     formData.putString("propertyAccessibilityIds",
                                             android.text.TextUtils.join(",",
@@ -123,6 +152,18 @@ public class FormStepOne extends Fragment {
                                 })
         );
 
+        // Set a listener for is neighbour of valuable project dropdown item to get selected item
+        isNeighbourOfValuableProjectTextView.
+                setOnItemClickListener((parent, view, position, id) -> {
+
+                    if (parent.getItemAtPosition(position).toString().equals("Yes"))
+                        projectNameInputLayout.setVisibility(View.VISIBLE);
+                    else
+                        projectNameInputLayout.setVisibility(View.GONE);
+
+                    formData.putString("isNeighbourOfValuableProject",
+                            parent.getItemAtPosition(position).toString());
+                });
 
         return v;
     }
@@ -131,11 +172,16 @@ public class FormStepOne extends Fragment {
      * Called whenever the wizard proceeds to the next step or goes back to the previous step
      */
     private void bindDataFields() {
+        formData.putString("notableLandmarks", notableLandmarksEditText.getText().toString());
+        formData.putString("accessibilityRoadName", accessibilityRoadNameEditText.
+                getText().toString());
+        formData.putString("valuableProjectName", valuableProjectNameEditText.
+                getText().toString());
 
         isComplete = formData.get("villageStreetId") != null &&
                 formData.get("landPlotId") != null &&
+                formData.get("notableLandmarks") != null &&
                 formData.get("propertyAccessibilityIds") != null;
-
         intent.putExtras(formData);
     }
 
@@ -145,6 +191,10 @@ public class FormStepOne extends Fragment {
                 propertyAccessibilityEditText.
                         setText(Objects.requireNonNull(
                                 formData.get("propertyAccessibilityText")).toString());
+                if (Objects.requireNonNull(formData.get("propertyAccessibilityText"))
+                        .toString().contains("Through Roads")) {
+                    roadNameInputLayout.setVisibility(View.VISIBLE);
+                }
             }
 
             if (formData.get("villageStreetText") != null) {
@@ -157,6 +207,34 @@ public class FormStepOne extends Fragment {
                 landPlotsTextView.
                         setText(Objects.requireNonNull(
                                 formData.get("landPlotText")).toString(), false);
+            }
+
+            if (formData.get("notableLandmarks") != null) {
+                notableLandmarksEditText.
+                        setText(Objects.requireNonNull(
+                                formData.get("notableLandmarks")).toString());
+            }
+
+            if (formData.get("accessibilityRoadName") != null) {
+                accessibilityRoadNameEditText.
+                        setText(Objects.requireNonNull(
+                                formData.get("accessibilityRoadName")).toString());
+            }
+
+            if (formData.get("isNeighbourOfValuableProject") != null) {
+                isNeighbourOfValuableProjectTextView.
+                        setText(Objects.requireNonNull(
+                                formData.get("isNeighbourOfValuableProject")).toString(), false);
+
+                if (Objects.equals(formData.get("isNeighbourOfValuableProject"), "Yes")) {
+                    projectNameInputLayout.setVisibility(View.VISIBLE);
+                }
+            }
+
+            if (formData.get("valuableProjectName") != null) {
+                valuableProjectNameEditText.
+                        setText(Objects.requireNonNull(
+                                formData.get("valuableProjectName")).toString());
             }
         }
 

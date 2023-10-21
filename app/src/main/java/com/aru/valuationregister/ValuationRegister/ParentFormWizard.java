@@ -204,6 +204,19 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    public void initializeSimpleDropdownLists(AutoCompleteTextView widget, String [] data) {
+
+        AppExecutors.getInstance().diskIO().execute(() -> {
+
+            runOnUiThread(() -> {
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getCurrentFragment()
+                        .requireActivity(),
+                        R.layout.dropdown_item, data);
+                widget.setAdapter(arrayAdapter);
+            });
+        });
+    }
+
     public void getConfigurationItemId(String type, String description, ConfigurationQueryResultsCallback callback) {
 
         AppExecutors.getInstance().diskIO().execute(() -> {

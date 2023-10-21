@@ -87,4 +87,8 @@
     <string name="select_land_plot">Select land plot</string>
     <string name="property_accessibility">How can one access your property ?</string>
     <string name="select_street">Select street</string>
+    <string name="notable_landmarks">What are notable landmarks in the neighborhood</string>
+    <string name="accessibility_road_name">Please mention the name of the road(s)</string>
+    <string name="is_neighbour_of_valuable_project">Any on-going project expected to affect value of property ?</string>
+    <string name="project_name">Please provide the name of the project</string>
 </resources>
