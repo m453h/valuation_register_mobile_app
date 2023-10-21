@@ -48,6 +48,7 @@
     <string name="location_missing">Press OK retry to acquire location</string>
     <string name="api_url">System URL</string>
     <string name="h_incomplete_form">Incomplete Form</string>
+    <string name="h1_form_text">Provide the required details to complete the valuation registration form…</string>
     <string name="h_important"></string>
 
     <!-- Menu Strings -->
@@ -55,9 +56,6 @@
     <string name="action_profile">My Profile</string>
     <string name="action_about">About</string>
     <string name="action_continue">Continue</string>
-
-
-
 
 
 
@@ -86,4 +84,7 @@
     <string name="rsp94">Duplicate transaction</string>
     <string name="rsp96">System malfunction</string>
     <string name="rspUnkown">Unknown terminal response code</string>
+    <string name="select_land_plot">Select land plot</string>
+    <string name="property_accessibility">How can one access your property ?</string>
+    <string name="select_street">Select street</string>
 </resources>

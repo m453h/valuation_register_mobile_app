@@ -17,6 +17,9 @@ public interface ConfigurationDao {
     @Query("SELECT * FROM configuration WHERE type = :type")
     List<Configuration> loadAllByType(String type);
 
+    @Query("SELECT * FROM configuration WHERE type = :type and description = :description")
+    Configuration getConfigurationItemId(String type, String description);
+
     @Insert
     void insertAll(Configuration... configurations);
 

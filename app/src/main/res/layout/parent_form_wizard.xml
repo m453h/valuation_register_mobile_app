@@ -23,7 +23,7 @@
         android:layout_height="49dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="#EEE"
+        android:background="@color/color_primary_700"
         >
         <Button
             android:id="@+id/back"
