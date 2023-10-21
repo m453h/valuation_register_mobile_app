@@ -91,4 +91,12 @@
     <string name="accessibility_road_name">Please mention the name of the road(s)</string>
     <string name="is_neighbour_of_valuable_project">Any on-going project expected to affect value of property ?</string>
     <string name="project_name">Please provide the name of the project</string>
+    <string name="road_infrastructure_quality">Road/Infrastructure Quality</string>
+    <string name="has_title">Do you have a Title (Certificate of Right of Occupancy)</string>
+    <string name="when_was_the_title_acquired">When was the title acquired ?</string>
+    <string name="plot_size">Plot size</string>
+    <string name="land_use">Land use</string>
+    <string name="property_size">Property size</string>
+    <string name="accommodation_details">What other rooms are in your property ?</string>
+    <string name="land_development_status">Land development status</string>
 </resources>

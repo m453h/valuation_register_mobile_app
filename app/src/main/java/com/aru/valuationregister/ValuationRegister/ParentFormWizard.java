@@ -47,8 +47,6 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
     private AppDatabase db;
 
-    private HashMap<String, AutoCompleteTextView> dropdownLists;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,11 +62,6 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
         initializeFragment();
         initializeNavigationButtons();
-        dropdownLists = new HashMap<>();
-    }
-
-    public void addToCurrentViews(String key, AutoCompleteTextView view) {
-        this.dropdownLists.put(key, view);
     }
 
     private void initializeNavigationButtons() {
@@ -98,28 +91,29 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
     private void switchFragment() {
         Fragment fragment;
-        Class<? extends Fragment> fragmentClass;
+        Class<? extends Fragment> fragmentClass = null;
 
         switch (currentForm) {
             case 1:
-                fragmentClass = FormStepOne.class;
-            default:
-                fragmentClass = FormStepOne.class;
+                fragmentClass = FormStepOne.class;break;
+
+            case 2:
+                fragmentClass = FormStepTwo.class;break;
         }
 
+        if (fragmentClass != null) {
+            try {
+                fragment = fragmentClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+                return;
+            }
 
-        try {
-            fragment = fragmentClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-            return;
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.flContent, fragment)
+                    .commit();
         }
-
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.flContent, fragment)
-                .commit();
 
     }
 
@@ -183,7 +177,7 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
         return true;
     }
 
-    public void initializeDropdownLists(String type) {
+    public void initializeDropdownLists(AutoCompleteTextView widget, String type) {
 
         AppExecutors.getInstance().diskIO().execute(() -> {
             List<Configuration> configurations = db.configurationDao().
@@ -199,7 +193,7 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
             runOnUiThread(() -> {
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getCurrentFragment().requireActivity(),
                         R.layout.dropdown_item, data);
-                Objects.requireNonNull(dropdownLists.get(type)).setAdapter(arrayAdapter);
+                widget.setAdapter(arrayAdapter);
             });
         });
     }
@@ -226,7 +220,7 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    public void getDialogSelector(EditText editText, String type, ConfigurationQueryResultsCallback callback) {
+    public void getDialogSelector(EditText editText, String type, int heading, ConfigurationQueryResultsCallback callback) {
         String selectedValuesText = editText.getText().toString();
 
         AppExecutors.getInstance().diskIO().execute(() -> {
@@ -253,7 +247,7 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
             runOnUiThread(() -> {
                 AlertDialog dialog = new AlertDialog.Builder(this)
-                        .setTitle(R.string.property_accessibility)
+                        .setTitle(heading)
                         .setMultiChoiceItems(data, checkedValues, (dialog1, indexSelected, isChecked) -> {
                             if (isChecked) {
                                 selectedItems.add(data[indexSelected]);

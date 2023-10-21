@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -54,7 +53,7 @@ public class FormStepOne extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.form_step_1, container, false);
+        View v = inflater.inflate(R.layout.form_step_one, container, false);
 
         // Get ui form widgets
         streetTextView = v.findViewById(R.id.street_text_view);
@@ -80,23 +79,14 @@ public class FormStepOne extends Fragment {
         assert parentFormWizard != null;
 
         // Add dropdown lists to the parent activity, these will be used to initialize the widget
-        parentFormWizard.addToCurrentViews("villages-and-streets", streetTextView);
-        parentFormWizard.addToCurrentViews("land-plots", landPlotsTextView);
         isComplete = false;
 
         // Set persisted form data to current UI elements
         displayBoundDataFields();
 
+        parentFormWizard.initializeDropdownLists(streetTextView, "villages-and-streets");
+        parentFormWizard.initializeDropdownLists(landPlotsTextView, "land-plots");
 
-        //An array of widget keys with dropdown lists
-        String[] configurations = {"villages-and-streets",
-                "land-plots",
-        };
-
-        // Initialize dropdown lists with
-        for (String config : configurations) {
-            parentFormWizard.initializeDropdownLists(config);
-        }
 
         parentFormWizard.initializeSimpleDropdownLists(isNeighbourOfValuableProjectTextView,
                 new String[]{"Yes", "No"});
@@ -125,8 +115,8 @@ public class FormStepOne extends Fragment {
 
         propertyAccessibilityEditText.setOnClickListener(v1 ->
                 parentFormWizard.
-                        getDialogSelector(propertyAccessibilityEditText,
-                                "property-accessibility", (configuration, type) -> {
+                        getDialogSelector(propertyAccessibilityEditText, "property-accessibility",
+                                R.string.property_accessibility, (configuration, type) -> {
                                     if (type.equals("checked")) {
                                         propertyAccessibilityIds.
                                                 add(configuration.configurationId);
@@ -182,6 +172,7 @@ public class FormStepOne extends Fragment {
                 formData.get("landPlotId") != null &&
                 formData.get("notableLandmarks") != null &&
                 formData.get("propertyAccessibilityIds") != null;
+
         intent.putExtras(formData);
     }
 
