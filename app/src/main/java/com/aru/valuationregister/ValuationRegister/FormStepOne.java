@@ -22,31 +22,19 @@ import java.util.Objects;
 public class FormStepOne extends Fragment {
 
     private boolean isComplete;
-
     private AutoCompleteTextView streetTextView;
-
     private AutoCompleteTextView landPlotsTextView;
-
     private AutoCompleteTextView isNeighbourOfValuableProjectTextView;
-
     private TextInputLayout roadNameInputLayout;
-
     private TextInputLayout projectNameInputLayout;
-
     private EditText notableLandmarksEditText;
-
     private EditText accessibilityRoadNameEditText;
-
     private EditText propertyAccessibilityEditText;
-
     private EditText valuableProjectNameEditText;
-    private ParentFormWizard parentFormWizard;
-
+    private ParentFormWizard parentActivity;
     private Intent intent;
-
     private List<String> propertyAccessibilityIds;
     private List<String> getPropertyAccessibilityText;
-
     private Bundle formData;
 
     @Override
@@ -54,17 +42,6 @@ public class FormStepOne extends Fragment {
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.form_step_one, container, false);
-
-        // Get ui form widgets
-        streetTextView = v.findViewById(R.id.street_text_view);
-        landPlotsTextView = v.findViewById(R.id.land_plots_text_view);
-        propertyAccessibilityEditText = v.findViewById(R.id.property_accessibility_edit_text);
-        isNeighbourOfValuableProjectTextView = v.findViewById(R.id.is_neighbour_of_valuable_project_text_view);
-        roadNameInputLayout = v.findViewById(R.id.accessibility_road_name_input_layout);
-        projectNameInputLayout = v.findViewById(R.id.valuable_project_name_input_layout);
-        notableLandmarksEditText = v.findViewById(R.id.notable_landmarks);
-        accessibilityRoadNameEditText = v.findViewById(R.id.accessibility_road_name);
-        valuableProjectNameEditText = v.findViewById(R.id.valuable_project_name_edit_text);
 
         //Set the intent used to persist data across fragments
         intent = requireActivity().getIntent();
@@ -74,48 +51,60 @@ public class FormStepOne extends Fragment {
             formData = new Bundle();
         }
 
-        // Get the instance of the Parent form wizard with form building helpers
-        parentFormWizard = (ParentFormWizard) getActivity();
-        assert parentFormWizard != null;
+        parentActivity = (ParentFormWizard) getActivity();
+        assert parentActivity != null;
 
-        // Add dropdown lists to the parent activity, these will be used to initialize the widget
         isComplete = false;
+
+        // Initialize form widgets
+        initializeStreetWidget(v);
+        initializeLandPlotsWidget(v);
+        initializePropertyAccessibilityWidget(v);
+        initializeIsNeighbourOfValuableProjectWidget(v);
+        initializeEditTexts(v);
 
         // Set persisted form data to current UI elements
         displayBoundDataFields();
+        return v;
+    }
 
-        parentFormWizard.initializeDropdownLists(streetTextView, "villages-and-streets");
-        parentFormWizard.initializeDropdownLists(landPlotsTextView, "land-plots");
-
-
-        parentFormWizard.initializeSimpleDropdownLists(isNeighbourOfValuableProjectTextView,
-                new String[]{"Yes", "No"});
-
-        // Set a listener for village-streets dropdown item to get selected id
+    private void initializeEditTexts(View v) {
+        notableLandmarksEditText = v.findViewById(R.id.notable_landmarks);
+        accessibilityRoadNameEditText = v.findViewById(R.id.accessibility_road_name);
+        valuableProjectNameEditText = v.findViewById(R.id.valuable_project_name_edit_text);
+    }
+    private void initializeStreetWidget(View v) {
+        streetTextView = v.findViewById(R.id.street_text_view);
+        parentActivity.initializeDropdownLists(streetTextView, "villages-and-streets");
         streetTextView.setOnItemClickListener((parent, view, position, id) -> {
-            parentFormWizard.getConfigurationItemId("villages-and-streets",
+            parentActivity.getConfigurationItemId("villages-and-streets",
                     parent.getItemAtPosition(position).toString(), (configuration, type) -> {
                         formData.putString("villageStreetId", configuration.configurationId);
                         formData.putString("villageStreetText", configuration.description);
                     });
         });
+    }
 
-        // Set a listener for land-plots dropdown item to get selected id
+    private void initializeLandPlotsWidget(View v) {
+        landPlotsTextView = v.findViewById(R.id.land_plots_text_view);
+        parentActivity.initializeDropdownLists(landPlotsTextView, "land-plots");
         landPlotsTextView.setOnItemClickListener((parent, view, position, id) -> {
-            parentFormWizard.getConfigurationItemId("land-plots",
+            parentActivity.getConfigurationItemId("land-plots",
                     parent.getItemAtPosition(position).toString(), (configuration, type) -> {
                         formData.putString("landPlotId", configuration.configurationId);
                         formData.putString("landPlotText", configuration.description);
                     });
         });
-
-        // Set a listener for multiple property accessibility selected from dialog interface
+    }
+    private void initializePropertyAccessibilityWidget(View v) {
         propertyAccessibilityIds = new ArrayList<>();
         getPropertyAccessibilityText = new ArrayList<>();
-
+        propertyAccessibilityEditText = v.findViewById(R.id.property_accessibility_edit_text);
+        roadNameInputLayout = v.findViewById(R.id.accessibility_road_name_input_layout);
         propertyAccessibilityEditText.setOnClickListener(v1 ->
-                parentFormWizard.
-                        getDialogSelector(propertyAccessibilityEditText, "property-accessibility",
+                parentActivity.
+                        getDialogSelector(propertyAccessibilityEditText,
+                                "property-accessibility",
                                 R.string.property_accessibility, (configuration, type) -> {
                                     if (type.equals("checked")) {
                                         propertyAccessibilityIds.
@@ -141,8 +130,14 @@ public class FormStepOne extends Fragment {
                                                     getPropertyAccessibilityText));
                                 })
         );
+    }
 
-        // Set a listener for is neighbour of valuable project dropdown item to get selected item
+    private void initializeIsNeighbourOfValuableProjectWidget(View v) {
+        isNeighbourOfValuableProjectTextView = v.
+                findViewById(R.id.is_neighbour_of_valuable_project_text_view);
+        projectNameInputLayout = v.findViewById(R.id.valuable_project_name_input_layout);
+        parentActivity.initializeSimpleDropdownLists(isNeighbourOfValuableProjectTextView,
+                new String[]{"Yes", "No"});
         isNeighbourOfValuableProjectTextView.
                 setOnItemClickListener((parent, view, position, id) -> {
 
@@ -154,8 +149,6 @@ public class FormStepOne extends Fragment {
                     formData.putString("isNeighbourOfValuableProject",
                             parent.getItemAtPosition(position).toString());
                 });
-
-        return v;
     }
 
     /**
@@ -177,54 +170,39 @@ public class FormStepOne extends Fragment {
 
     private void displayBoundDataFields() {
         if (formData != null) {
-            if (formData.get("propertyAccessibilityText") != null) {
-                propertyAccessibilityEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("propertyAccessibilityText")).toString());
-                if (Objects.requireNonNull(formData.get("propertyAccessibilityText"))
-                        .toString().contains("Through Roads")) {
-                    roadNameInputLayout.setVisibility(View.VISIBLE);
-                }
-            }
 
-            if (formData.get("villageStreetText") != null) {
-                streetTextView.
-                        setText(Objects.requireNonNull(
-                                formData.get("villageStreetText")).toString(), false);
-            }
+            parentActivity.setBoundWidgetData(propertyAccessibilityEditText ,
+                    formData.getString("propertyAccessibilityText", null));
 
-            if (formData.get("landPlotText") != null) {
-                landPlotsTextView.
-                        setText(Objects.requireNonNull(
-                                formData.get("landPlotText")).toString(), false);
-            }
+            parentActivity.setBoundWidgetData(streetTextView ,
+                    formData.getString("villageStreetText", null));
 
-            if (formData.get("notableLandmarks") != null) {
-                notableLandmarksEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("notableLandmarks")).toString());
-            }
+            parentActivity.setBoundWidgetData(landPlotsTextView ,
+                    formData.getString("landPlotText", null));
 
-            if (formData.get("accessibilityRoadName") != null) {
-                accessibilityRoadNameEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("accessibilityRoadName")).toString());
-            }
+            parentActivity.setBoundWidgetData(notableLandmarksEditText ,
+                    formData.getString("notableLandmarks", null));
 
-            if (formData.get("isNeighbourOfValuableProject") != null) {
-                isNeighbourOfValuableProjectTextView.
-                        setText(Objects.requireNonNull(
-                                formData.get("isNeighbourOfValuableProject")).toString(), false);
+            parentActivity.setBoundWidgetData(accessibilityRoadNameEditText ,
+                    formData.getString("accessibilityRoadName", null));
 
+            parentActivity.setBoundWidgetData(isNeighbourOfValuableProjectTextView ,
+                    formData.getString("isNeighbourOfValuableProject", null));
+
+            parentActivity.setBoundWidgetData(valuableProjectNameEditText ,
+                    formData.getString("valuableProjectName", null));
+
+            if (formData.getString("isNeighbourOfValuableProject") !=null) {
                 if (Objects.equals(formData.get("isNeighbourOfValuableProject"), "Yes")) {
                     projectNameInputLayout.setVisibility(View.VISIBLE);
                 }
             }
 
-            if (formData.get("valuableProjectName") != null) {
-                valuableProjectNameEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("valuableProjectName")).toString());
+            if (formData.getString("propertyAccessibilityText") !=null) {
+                if (Objects.requireNonNull(formData.get("propertyAccessibilityText"))
+                        .toString().contains("Through Roads")) {
+                    roadNameInputLayout.setVisibility(View.VISIBLE);
+                }
             }
         }
 

@@ -23,33 +23,22 @@ public class FormStepTwo extends Fragment {
 
     private boolean isComplete;
 
-    private ParentFormWizard parentFormWizard;
-
+    private ParentFormWizard parentActivity;
     private EditText roadInfrastructureQualityEditText;
-
     private List<String> roadInfrastructureQualityIds;
     private List<String> roadInfrastructureQualityText;
-
     private AutoCompleteTextView hasTitleTextView;
-
     private TextInputLayout whenTitleAcquiredInputLayout;
-
     private EditText whenTitleAcquiredEditText;
     private EditText plotSizeEditText;
-
     private EditText landUseEditText;
     private List<String> landUseIds;
     private List<String> landUseText;
     private EditText accommodationDetailsEditText;
     private List<String> accommodationDetailsIds;
     private List<String> accommodationDetailsText;
-
     private AutoCompleteTextView propertySizeTextView;
-
     private Intent intent;
-
-
-
     private Bundle formData;
 
     @Override
@@ -57,16 +46,6 @@ public class FormStepTwo extends Fragment {
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.form_step_two, container, false);
-
-        // Get ui form widgets
-        roadInfrastructureQualityEditText = v.findViewById(R.id.road_infrastructure_quality);
-        hasTitleTextView = v.findViewById(R.id.has_title_text_view);
-        whenTitleAcquiredEditText = v.findViewById(R.id.when_was_title_acquired_edit_text);
-        whenTitleAcquiredInputLayout = v.findViewById(R.id.when_was_title_acquired_input_layout);
-        plotSizeEditText = v.findViewById(R.id.plot_size_edit_text);
-        landUseEditText = v.findViewById(R.id.land_use_edit_text);
-        propertySizeTextView = v.findViewById(R.id.property_size_text_view);
-        accommodationDetailsEditText = v.findViewById(R.id.accommodation_details_edit_text);
 
         //Set the intent used to persist data across fragments
         intent = requireActivity().getIntent();
@@ -77,23 +56,30 @@ public class FormStepTwo extends Fragment {
         }
 
         // Get the instance of the Parent form wizard with form building helpers
-        parentFormWizard = (ParentFormWizard) getActivity();
-        assert parentFormWizard != null;
+        parentActivity = (ParentFormWizard) getActivity();
+        assert parentActivity != null;
 
-        // Add dropdown lists to the parent activity, these will be used to initialize the widget
         isComplete = false;
+
+        initializeRoadInfrastructureQualityWidget(v);
+        initializeAccommodationDetailsWidget(v);
+        initializeLandUseWidget(v);
+        initializePropertySize(v);
+        initializeHasTitleWidget(v);
+        initializeEditTexts(v);
 
         // Set persisted form data to current UI elements
         displayBoundDataFields();
 
-        parentFormWizard.initializeDropdownLists(propertySizeTextView, "property-size");
-        parentFormWizard.initializeSimpleDropdownLists(hasTitleTextView,
-                new String[]{"Yes", "No"});
+        return v;
+    }
 
+    private void initializeRoadInfrastructureQualityWidget(View v) {
         roadInfrastructureQualityIds = new ArrayList<>();
         roadInfrastructureQualityText = new ArrayList<>();
+        roadInfrastructureQualityEditText = v.findViewById(R.id.road_infrastructure_quality);
         roadInfrastructureQualityEditText.setOnClickListener(v1 ->
-                parentFormWizard.
+                parentActivity.
                         getDialogSelector(roadInfrastructureQualityEditText,
                                 "infrastructure-quality",
                                 R.string.road_infrastructure_quality, (configuration, type) -> {
@@ -117,11 +103,45 @@ public class FormStepTwo extends Fragment {
                                                     roadInfrastructureQualityText));
                                 })
         );
+    }
 
+    private void initializeAccommodationDetailsWidget(View v) {
+        accommodationDetailsIds = new ArrayList<>();
+        accommodationDetailsText = new ArrayList<>();
+        accommodationDetailsEditText = v.findViewById(R.id.accommodation_details_edit_text);
+        accommodationDetailsEditText.setOnClickListener(v1 ->
+                parentActivity.
+                        getDialogSelector(accommodationDetailsEditText,
+                                "accommodation-details",
+                                R.string.accommodation_details, (configuration, type) -> {
+                                    if (type.equals("checked")) {
+                                        accommodationDetailsIds.
+                                                add(configuration.configurationId);
+                                        accommodationDetailsText.
+                                                add(configuration.description);
+                                    } else if (type.equals("unchecked")) {
+                                        accommodationDetailsIds.
+                                                remove(configuration.configurationId);
+                                        accommodationDetailsText.
+                                                remove(configuration.description);
+                                    }
+                                    formData.putString("accommodationDetailsIds",
+                                            android.text.TextUtils.join(",",
+                                                    accommodationDetailsIds));
+
+                                    formData.putString("accommodationDetailsText",
+                                            android.text.TextUtils.join(", ",
+                                                    accommodationDetailsText));
+                                })
+        );
+    }
+
+    private void initializeLandUseWidget(View v) {
         landUseIds = new ArrayList<>();
         landUseText = new ArrayList<>();
+        landUseEditText = v.findViewById(R.id.land_use_edit_text);
         landUseEditText.setOnClickListener(v1 ->
-                parentFormWizard.
+                parentActivity.
                         getDialogSelector(landUseEditText,
                                 "land-use",
                                 R.string.land_use, (configuration, type) -> {
@@ -146,7 +166,25 @@ public class FormStepTwo extends Fragment {
                                 })
         );
 
+    }
 
+    private void initializePropertySize(View v) {
+        propertySizeTextView = v.findViewById(R.id.property_size_text_view);
+        parentActivity.initializeDropdownLists(propertySizeTextView, "property-size");
+        propertySizeTextView.setOnItemClickListener((parent, view, position, id) -> {
+            parentActivity.getConfigurationItemId("property-size",
+                    parent.getItemAtPosition(position).toString(), (configuration, type) -> {
+                        formData.putString("propertySizeId", configuration.configurationId);
+                        formData.putString("propertySizeText", configuration.description);
+                    });
+        });
+    }
+
+    private void initializeHasTitleWidget(View v) {
+        hasTitleTextView = v.findViewById(R.id.has_title_text_view);
+        whenTitleAcquiredInputLayout = v.findViewById(R.id.when_was_title_acquired_input_layout);
+        parentActivity.initializeSimpleDropdownLists(hasTitleTextView,
+                new String[]{"Yes", "No"});
         // Set a listener for is neighbour of valuable project dropdown item to get selected item
         hasTitleTextView.
                 setOnItemClickListener((parent, view, position, id) -> {
@@ -159,45 +197,11 @@ public class FormStepTwo extends Fragment {
                     formData.putString("hasTitle",
                             parent.getItemAtPosition(position).toString());
                 });
+    }
 
-
-        accommodationDetailsIds = new ArrayList<>();
-        accommodationDetailsText = new ArrayList<>();
-        accommodationDetailsEditText.setOnClickListener(v1 ->
-                parentFormWizard.
-                        getDialogSelector(accommodationDetailsEditText,
-                                "accommodation-details",
-                                R.string.accommodation_details, (configuration, type) -> {
-                                    if (type.equals("checked")) {
-                                        accommodationDetailsIds.
-                                                add(configuration.configurationId);
-                                        accommodationDetailsText.
-                                                add(configuration.description);
-                                    } else if (type.equals("unchecked")) {
-                                        accommodationDetailsIds.
-                                                remove(configuration.configurationId);
-                                        accommodationDetailsText.
-                                                remove(configuration.description);
-                                    }
-                                    formData.putString("accommodationDetailsIds",
-                                            android.text.TextUtils.join(",",
-                                                    accommodationDetailsIds));
-
-                                    formData.putString("accommodationDetailsText",
-                                            android.text.TextUtils.join(", ",
-                                                    accommodationDetailsText));
-                                })
-        );
-
-        propertySizeTextView.setOnItemClickListener((parent, view, position, id) -> {
-            parentFormWizard.getConfigurationItemId("property-size",
-                    parent.getItemAtPosition(position).toString(), (configuration, type) -> {
-                        formData.putString("propertySizeId", configuration.configurationId);
-                        formData.putString("propertySizeText", configuration.description);
-                    });
-        });
-
-        return v;
+    private void initializeEditTexts(View v) {
+        whenTitleAcquiredEditText = v.findViewById(R.id.when_was_title_acquired_edit_text);
+        plotSizeEditText = v.findViewById(R.id.plot_size_edit_text);
     }
 
     /**
@@ -218,50 +222,32 @@ public class FormStepTwo extends Fragment {
 
     private void displayBoundDataFields() {
         if (formData != null) {
-            if (formData.get("roadInfrastructureQualityText") != null) {
-                roadInfrastructureQualityEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("roadInfrastructureQualityText")).toString());
-            }
+
+            parentActivity.setBoundWidgetData(roadInfrastructureQualityEditText,
+                    formData.getString("roadInfrastructureQualityText", null));
+
+            parentActivity.setBoundWidgetData(hasTitleTextView,
+                    formData.getString("hasTitle", null));
+
+            parentActivity.setBoundWidgetData(plotSizeEditText,
+                    formData.getString("plotSize", null));
+
+            parentActivity.setBoundWidgetData(whenTitleAcquiredEditText,
+                    formData.getString("whenTitleAcquired", null));
+
+            parentActivity.setBoundWidgetData(landUseEditText,
+                    formData.getString("landUseText", null));
+
+            parentActivity.setBoundWidgetData(propertySizeTextView,
+                    formData.getString("propertySizeText", null));
+
+            parentActivity.setBoundWidgetData(accommodationDetailsEditText,
+                    formData.getString("accommodationDetailsText", null));
 
             if (formData.get("hasTitle") != null) {
-                hasTitleTextView.
-                        setText(Objects.requireNonNull(
-                                formData.get("hasTitle")).toString(), false);
-
                 if (Objects.equals(formData.getString("hasTitle"), "Yes")) {
                     whenTitleAcquiredInputLayout.setVisibility(View.VISIBLE);
                 }
-            }
-
-            if (formData.get("plotSize") != null) {
-                plotSizeEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("plotSize")).toString());
-            }
-
-            if (formData.get("whenTitleAcquired") != null) {
-                whenTitleAcquiredEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("whenTitleAcquired")).toString());
-            }
-
-            if (formData.get("landUseText") != null) {
-                landUseEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("landUseText")).toString());
-            }
-
-            if (formData.get("propertySizeText") != null) {
-                propertySizeTextView.
-                        setText(Objects.requireNonNull(
-                                formData.get("propertySizeText")).toString());
-            }
-
-            if (formData.get("accommodationDetailsText") != null) {
-                accommodationDetailsEditText.
-                        setText(Objects.requireNonNull(
-                                formData.get("accommodationDetailsText")).toString());
             }
         }
 
