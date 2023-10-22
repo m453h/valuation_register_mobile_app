@@ -30,48 +30,16 @@
                 android:layout_marginBottom="20dp"
                 android:textSize="14sp" />
 
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:hint="@string/land_development_status"
-                >
-                <AutoCompleteTextView
-                    android:id="@+id/is_land_developed_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp">
 
                 <EditText
-                    android:id="@+id/plot_size_edit_text"
+                    android:id="@+id/services_amenities_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/number_of_buildings_on_plot"
-                    android:inputType="numberDecimal"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp">
-
-                <EditText
-                    android:id="@+id/building_types_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/building_types"
+                    android:hint="@string/services_amenities_in_plot"
                     android:inputType="text"
                     android:cursorVisible="false"
                     android:focusable="false"
@@ -82,35 +50,37 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/other_services_amenities_input_layout"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp">
 
                 <EditText
-                    android:id="@+id/servant_quarter_size_edit_text"
+                    android:id="@+id/other_services_amenities_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/servant_quarter_size"
-                    android:inputType="numberDecimal"
+                    android:hint="@string/other_services_amenities"
+                    android:inputType="text"
                     android:maxLines="1"
                     android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:hint="@string/land_development_status"
-                >
-                <AutoCompleteTextView
-                    android:id="@+id/property_condition_text_view"
+                android:layout_marginBottom="20dp">
+
+                <EditText
+                    android:id="@+id/when_plot_was_purchased_edit_text"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:inputType="none" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/plot_purchase_year"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -118,10 +88,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:hint="@string/has_mortgage"
+                android:hint="@string/howLandWasAcquired"
                 >
                 <AutoCompleteTextView
-                    android:id="@+id/has_mortgage_text_view"
+                    android:id="@+id/how_land_was_acquired_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -129,20 +99,39 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:id="@+id/other_way_land_was_acquired_input_layout"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:hint="@string/mortgage_amount"
-                >
-                <AutoCompleteTextView
-                    android:id="@+id/mortgage_amount_text_view"
+                android:layout_marginBottom="20dp">
+
+                <EditText
+                    android:id="@+id/other_way_land_was_acquired_edit_text"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:inputType="none" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/other_ways_land_was_acquired"
+                    android:inputType="text"
+                    android:cursorVisible="false"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp">
+
+                <EditText
+                    android:id="@+id/how_much_was_paid_to_acquire_land_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/howMuchWasPaidToAcquireLand"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
