@@ -172,7 +172,6 @@ public class FormStepOne extends Fragment {
                 formData.get("landPlotId") != null &&
                 formData.get("notableLandmarks") != null &&
                 formData.get("propertyAccessibilityIds") != null;
-
         intent.putExtras(formData);
     }
 

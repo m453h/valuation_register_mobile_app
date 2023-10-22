@@ -23,27 +23,19 @@ import java.util.Objects;
 public class FormStepThree extends Fragment {
 
     private boolean isComplete;
-
     private ParentFormWizard parentActivity;
-
     private Intent intent;
-
     private AutoCompleteTextView landDevelopmentStatusTextView;
-
     private EditText numberOfBuildingsEditText;
     private EditText servantQuarterSizeEditText;
-
     private EditText buildingTypeEditText;
     private List<String> buildingTypeIds;
     private List<String> buildingTypeText;
     private AutoCompleteTextView propertyConditionEditText;
     private AutoCompleteTextView hasMortgageTextView;
     private AutoCompleteTextView mortgageAmountTextView;
-
     private TextInputLayout mortgageAmountInputLayout;
-
     private TextInputLayout servantQuarterSizeInputLayout;
-
     private Bundle formData;
 
     @Override
@@ -201,7 +193,6 @@ public class FormStepThree extends Fragment {
                 formData.get("propertyConditionId") != null &&
                 formData.get("hasMortgage") != null;
         intent.putExtras(formData);
-        isComplete = true;
     }
 
     private void displayBoundDataFields() {
@@ -233,7 +224,6 @@ public class FormStepThree extends Fragment {
                     mortgageAmountInputLayout.setVisibility(View.VISIBLE);
                 }
             }
-
             if (formData.getString("buildingTypeText") !=null) {
                 if (Objects.requireNonNull(formData.getString("buildingTypeText"))
                         .contains("Servant Quarter (outbuilding)")) {

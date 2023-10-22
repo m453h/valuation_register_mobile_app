@@ -173,8 +173,6 @@ public class FormStepFive extends Fragment {
                 getText().toString());
         formData.putString("sellingPrice", sellingPriceEditText.
                 getText().toString());
-
-
         isComplete = formData.get("landAcquisitionFundSourceId") != null &&
                 formData.get("landAcquisitionSourceOfInfoId") != null &&
                 formData.get("awareOfSale") != null;

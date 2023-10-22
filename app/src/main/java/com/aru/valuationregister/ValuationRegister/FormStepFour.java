@@ -169,14 +169,43 @@ public class FormStepFour extends Fragment {
                 formData.get("whenPlotWasPurchased") != null &&
                 formData.get("landAcquisitionText") != null;
         intent.putExtras(formData);
-        isComplete = true;
     }
 
 
 
     private void displayBoundDataFields() {
         if (formData != null) {
+            parentActivity.setBoundWidgetData(servicesAmenitiesEditText ,
+                    formData.getString("servicesAmenitiesText", null));
 
+            parentActivity.setBoundWidgetData(otherServicesAmenitiesEditText ,
+                    formData.getString("otherServicesAmenities", null));
+
+            parentActivity.setBoundWidgetData(whenPlotWasPurchasedEditText ,
+                    formData.getString("whenPlotWasPurchased", null));
+
+            parentActivity.setBoundWidgetData(howLandWasAcquiredTextView ,
+                    formData.getString("landAcquisitionText", null));
+
+            parentActivity.setBoundWidgetData(otherWayLandWasAcquiredEditText ,
+                    formData.getString("otherWayLandWasAcquired", null));
+
+            parentActivity.setBoundWidgetData(howMuchWasPaidToAcquireLandEditText ,
+                    formData.getString("howMuchWasPaidToAcquireLand", null));
+
+            if (formData.getString("servicesAmenitiesText") !=null) {
+                if ((Objects.requireNonNull(formData.
+                        getString("servicesAmenitiesText")).contains("Any Other"))) {
+                    otherServicesAmenitiesInputLayout.setVisibility(View.VISIBLE);
+                }
+            }
+
+            if (formData.getString("landAcquisitionText") !=null) {
+                if (Objects.equals(formData.
+                        getString("landAcquisitionText"), "Any Other")) {
+                    otherWayLandWasAcquiredInputLayout.setVisibility(View.VISIBLE);
+                }
+            }
         }
 
     }
