@@ -111,7 +111,7 @@
     <string name="howMuchWasPaidToAcquireLand">How much did you pay for your plot ?</string>
     <string name="other_ways_land_was_acquired">Other ways you acquired the land</string>
     <string name="land_acquisition_source_of_funds">Source of funds for plot acquisition</string>
-    <string name="other_source_of_founds_for_plot_acquisition">Other source of founds for plot acquisition</string>
+    <string name="other_source_of_funds_for_plot_acquisition">Other source of funds for plot acquisition</string>
     <string name="source_of_info_for_plot_acquisition">Source of information for plot acquisition</string>
     <string name="is_aware_of_sale_text_view">Are you aware of sale of land/property within your neighborhood ?</string>
     <string name="type_of_sale">What was sold ?</string>

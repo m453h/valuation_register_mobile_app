@@ -2,9 +2,9 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
 
@@ -12,22 +12,21 @@
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        >
+        android:layout_height="fill_parent">
 
         <LinearLayout
             android:id="@+id/valuation_register_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
+
             <TextView
+                android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView"
-                android:text="@string/h1_form_text"
                 android:layout_marginTop="80dp"
                 android:layout_marginBottom="20dp"
+                android:text="@string/h1_form_text"
                 android:textSize="14sp" />
 
 
@@ -36,10 +35,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:hint="@string/services_amenities_in_plot"
-                >
+                android:hint="@string/land_acquisition_source_of_funds">
+
                 <AutoCompleteTextView
-                    android:id="@+id/services_amenities_text_view"
+                    android:id="@+id/land_acquisition_source_of_funds_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -47,33 +46,18 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/other_services_amenities_input_layout"
+                android:id="@+id/other_source_of_funds_for_land_acquisition_input_layout"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp">
 
                 <EditText
-                    android:id="@+id/other_services_amenities_edit_text"
+                    android:id="@+id/other_source_of_funds_for_land_acquisition_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/other_services_amenities"
+                    android:hint="@string/other_source_of_funds_for_plot_acquisition"
                     android:inputType="text"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp">
-
-                <EditText
-                    android:id="@+id/when_plot_was_purchased_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/plot_purchase_year"
-                    android:inputType="number"
                     android:maxLines="1"
                     android:singleLine="true" />
 
@@ -84,10 +68,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:hint="@string/howLandWasAcquired"
-                >
+                android:hint="@string/source_of_info_for_plot_acquisition">
+
                 <AutoCompleteTextView
-                    android:id="@+id/how_land_was_acquired_text_view"
+                    android:id="@+id/land_acquisition_source_of_info_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -95,40 +79,76 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/other_way_land_was_input_layout"
+                android:id="@+id/other_source_of_info_for_land_acquisition_input_layout"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp">
 
                 <EditText
-                    android:id="@+id/other_way_land_was_acquired_edit_text"
+                    android:id="@+id/other_land_acquisition_source_of_info_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/other_ways_land_was_acquired"
+                    android:hint="@string/other_sources_of_info_for_plot_acquisition"
                     android:inputType="text"
-                    android:cursorVisible="false"
                     android:maxLines="1"
                     android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp">
+                android:layout_marginBottom="20dp"
+                android:hint="@string/is_aware_of_sale_text_view">
 
-                <EditText
-                    android:id="@+id/how_much_was_paid_to_acquire_land_edit_text"
+                <AutoCompleteTextView
+                    android:id="@+id/aware_of_sale_text_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/howMuchWasPaidToAcquireLand"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/sale_in_neighborhood"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical">
 
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:hint="@string/type_of_sale">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/type_of_sale_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp">
+
+                    <EditText
+                        android:id="@+id/selling_price_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/selling_price"
+                        android:inputType="number"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 </LinearLayout>
