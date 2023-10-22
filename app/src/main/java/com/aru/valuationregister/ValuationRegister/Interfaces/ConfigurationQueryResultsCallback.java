@@ -1,4 +1,4 @@
-package com.aru.valuationregister.ValuationRegister.Callbacks;
+package com.aru.valuationregister.ValuationRegister.Interfaces;
 
 import com.aru.valuationregister.Database.Models.Configuration;
 

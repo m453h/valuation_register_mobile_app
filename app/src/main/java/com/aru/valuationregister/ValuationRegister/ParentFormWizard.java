@@ -20,12 +20,11 @@ import com.aru.valuationregister.Database.AppDatabase;
 import com.aru.valuationregister.Database.AppExecutors;
 import com.aru.valuationregister.Database.Models.Configuration;
 import com.aru.valuationregister.R;
-import com.aru.valuationregister.ValuationRegister.Callbacks.ConfigurationQueryResultsCallback;
+import com.aru.valuationregister.ValuationRegister.Interfaces.ConfigurationQueryResultsCallback;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,11 +93,11 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
         Class<? extends Fragment> fragmentClass = null;
 
         switch (currentForm) {
-            case 1:
-                fragmentClass = FormStepOne.class;break;
-
-            case 2:
-                fragmentClass = FormStepTwo.class;break;
+            case 1: fragmentClass = FormStepOne.class; break;
+            case 2: fragmentClass = FormStepTwo.class; break;
+            case 3: fragmentClass = FormStepThree.class; break;
+            case 4: fragmentClass = FormStepFour.class; break;
+            case 5: fragmentClass = FormStepFive.class; break;
         }
 
         if (fragmentClass != null) {
@@ -270,4 +269,15 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
     }
 
+    public void setBoundWidgetData(AutoCompleteTextView widget, String value){
+        if (value != null && widget != null) {
+            widget.setText(value);
+        }
+    }
+
+    public void setBoundWidgetData(EditText widget, String value){
+        if (value != null && widget != null) {
+            widget.setText(value);
+        }
+    }
 }

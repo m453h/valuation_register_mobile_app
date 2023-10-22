@@ -99,4 +99,23 @@
     <string name="property_size">Property size</string>
     <string name="accommodation_details">What other rooms are in your property ?</string>
     <string name="land_development_status">Land development status</string>
+    <string name="number_of_buildings_on_plot">Number of buildings on plot</string>
+    <string name="building_types">What are the building(s) ?</string>
+    <string name="servant_quarter_size">Servant Quarter Size</string>
+    <string name="has_mortgage">Have you taken mortgage/credit facility ?</string>
+    <string name="mortgage_amount">Mortgage/credit facility amount</string>
+    <string name="services_amenities_in_plot">Services/amenities available in plot</string>
+    <string name="other_services_amenities">Other services/amenities</string>
+    <string name="plot_purchase_year">Plot purchase year</string>
+    <string name="howLandWasAcquired">How did you get your land ?</string>
+    <string name="howMuchWasPaidToAcquireLand">How much did you pay for your plot ?</string>
+    <string name="other_ways_land_was_acquired">Other ways you acquired the land</string>
+    <string name="land_acquisition_source_of_funds">Source of funds for plot acquisition</string>
+    <string name="other_source_of_founds_for_plot_acquisition">Other source of founds for plot acquisition</string>
+    <string name="source_of_info_for_plot_acquisition">Source of information for plot acquisition</string>
+    <string name="is_aware_of_sale_text_view">Are you aware of sale of land/property within your neighborhood ?</string>
+    <string name="type_of_sale">What was sold ?</string>
+    <string name="selling_price">What was the selling price ?</string>
+    <string name="other_sources_of_info_for_plot_acquisition">Other sources of info. for plot acquisition</string>
+    <string name="property_condition">Property condition</string>
 </resources>
