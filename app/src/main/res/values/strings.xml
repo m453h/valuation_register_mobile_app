@@ -1,11 +1,7 @@
 <resources>
-    <string name="app_name">ValuationRegister</string>
+    <string name="app_name">Valuation Register</string>
+    <string name="app_prefs">VALUATION_REGISTER</string>
     <string name="title_activity_main">Valuation Register</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
 
@@ -118,4 +114,6 @@
     <string name="selling_price">What was the selling price ?</string>
     <string name="other_sources_of_info_for_plot_acquisition">Other sources of info. for plot acquisition</string>
     <string name="property_condition">Property condition</string>
+    <string name="confirm_heading">Data submission confirmation</string>
+    <string name="confirm_paragraph">This action can not be reversed, Are you sure you want to submit this data ?</string>
 </resources>

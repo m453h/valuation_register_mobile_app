@@ -100,22 +100,18 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp">
-
-                <EditText
-                    android:id="@+id/land_use_edit_text"
+                android:layout_marginBottom="20dp"
+                android:hint="@string/land_use"
+                >
+                <AutoCompleteTextView
+                    android:id="@+id/land_use_text_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/land_use"
-                    android:inputType="text"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
 
