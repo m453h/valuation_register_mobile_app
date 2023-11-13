@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -24,7 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
 import java.util.Objects;
 
 
@@ -45,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         prefs = getApplicationContext().
-                getSharedPreferences("VALUATION_REGISTER", MODE_PRIVATE);
+                getSharedPreferences(getResources().getString(R.string.app_prefs), MODE_PRIVATE);
 
         // Initialize action with global shared preferences
         Action.initialize(prefs);
@@ -255,18 +253,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void getAllFromDb() {
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            List<Configuration> configurations = db.configurationDao().getAll();
-            for (Configuration config : configurations) {
-                Log.wtf("VALUATION_REGISTER", config.description);
-                runOnUiThread(() -> {
-                });
-            }
-        });
-    }
-
-
 }

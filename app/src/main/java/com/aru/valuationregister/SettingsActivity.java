@@ -2,7 +2,6 @@ package com.aru.valuationregister;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
@@ -22,10 +21,9 @@ import androidx.appcompat.widget.Toolbar;
 import com.aru.valuationregister.Rest.Action;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Objects;
 
-/**
- * A login screen that offers login via email/password.
- */
+
 public class SettingsActivity extends AppCompatActivity implements OnClickListener {
 
 
@@ -39,7 +37,6 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
     private EditText inputTextConfirmation;
     private TextInputLayout inputLayout;
     private AlertDialog alertDialog;
-    private String callingActivity;
 
 
     private String apiURL;
@@ -55,7 +52,8 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
         LinearLayout mAPILayout = findViewById(R.id.mURLAPILayout);
         mAPILayout.setOnClickListener(this);
 
-        prefs = getApplicationContext().getSharedPreferences("VALUATION_REGISTER", MODE_PRIVATE);
+        prefs = getApplicationContext().
+                getSharedPreferences(getResources().getString(R.string.app_prefs), MODE_PRIVATE);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Settings");
@@ -67,8 +65,6 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
         mAPIURLView = findViewById(R.id.mAPIURL);
 
         apiURL = prefs.getString("apiURL", null);
-        callingActivity = getIntent().getExtras().getString("callingActivity");
-
 
         if(apiURL!=null)
             mAPIURLView.setText(apiURL);
@@ -79,7 +75,8 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.mURLAPILayout) {
-            getSettingsEditorDialog(R.string.api_url, R.string.api_url, "", InputType.TYPE_CLASS_TEXT);
+            getSettingsEditorDialog(R.string.api_url, R.string.api_url, "",
+                    InputType.TYPE_CLASS_TEXT);
         }
     }
 
@@ -109,19 +106,7 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
             mAPIURLView.setText(value);
             alertDialog.dismiss();
             Action.setParentUrl();
-            if(callingActivity.equals("SplashScreen"))
-            {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.h_important)
-                        .setMessage(R.string.p_inform_close)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                finish();
-                            }
-                        })
-                        .show();
-            }
+            mAPIURLView.setText(apiURL);
         }
     }
 
@@ -133,7 +118,8 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(header);
 
-        View inflate = LayoutInflater.from(context).inflate(R.layout.custom_dialog_profile, null, false);
+        View inflate = LayoutInflater.from(context).
+                inflate(R.layout.custom_dialog_profile, null, false);
 
         inputText = inflate.findViewById(R.id.mProfileInput);
         inputText.setText(value);
@@ -149,7 +135,8 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
             inputTextConfirmation.setVisibility(View.VISIBLE);
             inputTextConfirmation.setInputType(inputType);
 
-            TextInputLayout inputConfirmationLayout = inflate.findViewById(R.id.mProfileInputConfirmationLayout);
+            TextInputLayout inputConfirmationLayout = inflate.
+                    findViewById(R.id.mProfileInputConfirmationLayout);
             inputConfirmationLayout.setHint(getResources().getString(R.string.prompt_confirm_password));
         }
 
@@ -162,12 +149,8 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
             inputText.setText(apiURL);
 
 
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.cancel();
-            }
-        });
+        builder.setNegativeButton(android.R.string.cancel, (dialogInterface, i)
+                -> dialogInterface.cancel());
 
 
         builder.setPositiveButton(android.R.string.ok, null);
@@ -176,26 +159,17 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
 
         final AlertDialog copyAlertDialog = alertDialog;
 
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
+        alertDialog.setOnShowListener(dialogInterface -> {
 
-                Button button =  copyAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-
-                        updateSettingsValue(inputTypeValue);
-                    }
-                });
-            }
+            Button button =  copyAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view ->
+                    updateSettingsValue(inputTypeValue)
+            );
         });
 
         alertDialog.show();
 
     }
-
 
     @Override
     public void onBackPressed() {
@@ -209,7 +183,6 @@ public class SettingsActivity extends AppCompatActivity implements OnClickListen
         }
         return true;
     }
-
 
 }
 

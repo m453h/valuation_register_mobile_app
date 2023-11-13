@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aru.valuationregister.R;
 import com.aru.valuationregister.Rest.Action;
 import com.aru.valuationregister.SettingsActivity;
+import com.aru.valuationregister.ValuationRegister.BrowseDataActivity;
 import com.aru.valuationregister.ValuationRegister.ParentFormWizard;
 
 import java.util.ArrayList;
@@ -112,6 +113,12 @@ public class MainMenuActivity extends AppCompatActivity {
                                 case "Create a new Record":
                                     Intent intent = new Intent(getApplicationContext(),
                                             ParentFormWizard.class);
+                                    startActivity(intent);
+                                    break;
+
+                                case "Browser existing data":
+                                     intent = new Intent(getApplicationContext(),
+                                            BrowseDataActivity.class);
                                     startActivity(intent);
                                     break;
 

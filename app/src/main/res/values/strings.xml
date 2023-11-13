@@ -3,6 +3,8 @@
     <string name="app_prefs">VALUATION_REGISTER</string>
     <string name="title_activity_main">Valuation Register</string>
     <string name="action_settings">Settings</string>
+    <string name="action_browse">Existing Data</string>
+
 
 
 
@@ -116,4 +118,5 @@
     <string name="property_condition">Property condition</string>
     <string name="confirm_heading">Data submission confirmation</string>
     <string name="confirm_paragraph">This action can not be reversed, Are you sure you want to submit this data ?</string>
+    <string name="search">Search</string>
 </resources>

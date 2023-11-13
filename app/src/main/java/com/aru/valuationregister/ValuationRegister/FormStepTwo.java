@@ -31,9 +31,7 @@ public class FormStepTwo extends Fragment {
     private TextInputLayout whenTitleAcquiredInputLayout;
     private EditText whenTitleAcquiredEditText;
     private EditText plotSizeEditText;
-    private EditText landUseEditText;
-    private List<String> landUseIds;
-    private List<String> landUseText;
+    private AutoCompleteTextView landUseTextView;
     private EditText accommodationDetailsEditText;
     private List<String> accommodationDetailsIds;
     private List<String> accommodationDetailsText;
@@ -137,35 +135,15 @@ public class FormStepTwo extends Fragment {
     }
 
     private void initializeLandUseWidget(View v) {
-        landUseIds = new ArrayList<>();
-        landUseText = new ArrayList<>();
-        landUseEditText = v.findViewById(R.id.land_use_edit_text);
-        landUseEditText.setOnClickListener(v1 ->
-                parentActivity.
-                        getDialogSelector(landUseEditText,
-                                "land-use",
-                                R.string.land_use, (configuration, type) -> {
-                                    if (type.equals("checked")) {
-                                        landUseIds.
-                                                add(configuration.configurationId);
-                                        landUseText.
-                                                add(configuration.description);
-                                    } else if (type.equals("unchecked")) {
-                                        landUseIds.
-                                                remove(configuration.configurationId);
-                                        landUseText.
-                                                remove(configuration.description);
-                                    }
-                                    formData.putString("landUseIds",
-                                            android.text.TextUtils.join(",",
-                                                    landUseIds));
-
-                                    formData.putString("landUseText",
-                                            android.text.TextUtils.join(", ",
-                                                    landUseText));
-                                })
-        );
-
+        landUseTextView = v.findViewById(R.id.land_use_text_view);
+        parentActivity.initializeDropdownLists(landUseTextView, "land-use");
+        landUseTextView.setOnItemClickListener((parent, view, position, id) -> {
+            parentActivity.getConfigurationItemId("land-use",
+                    parent.getItemAtPosition(position).toString(), (configuration, type) -> {
+                        formData.putString("landUseId", configuration.configurationId);
+                        formData.putString("landUseText", configuration.description);
+                    });
+        });
     }
 
     private void initializePropertySize(View v) {
@@ -214,7 +192,7 @@ public class FormStepTwo extends Fragment {
         isComplete = formData.get("roadInfrastructureQualityIds") != null &&
                 formData.get("hasTitle") != null &&
                 formData.get("plotSize") != null &&
-                formData.get("landUseIds") != null &&
+                formData.get("landUseId") != null &&
                 formData.get("propertySizeId") != null &&
                 formData.get("accommodationDetailsIds") != null;
         intent.putExtras(formData);
@@ -235,7 +213,7 @@ public class FormStepTwo extends Fragment {
             parentActivity.setBoundWidgetData(whenTitleAcquiredEditText,
                     formData.getString("whenTitleAcquired", null));
 
-            parentActivity.setBoundWidgetData(landUseEditText,
+            parentActivity.setBoundWidgetData(landUseTextView,
                     formData.getString("landUseText", null));
 
             parentActivity.setBoundWidgetData(propertySizeTextView,

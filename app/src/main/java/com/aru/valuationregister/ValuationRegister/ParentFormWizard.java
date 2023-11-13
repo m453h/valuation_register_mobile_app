@@ -1,7 +1,9 @@
 package com.aru.valuationregister.ValuationRegister;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -14,14 +16,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.aru.valuationregister.Database.AppDatabase;
 import com.aru.valuationregister.Database.AppExecutors;
 import com.aru.valuationregister.Database.Models.Configuration;
 import com.aru.valuationregister.R;
+import com.aru.valuationregister.Rest.Action;
 import com.aru.valuationregister.ValuationRegister.Interfaces.ConfigurationQueryResultsCallback;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -33,17 +40,10 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
 
     private int currentForm = 1;
-
-    private int maximumFormCount = 9;
-
+    private int maximumFormCount = 5;
     private ProgressDialog mProgressDialog;
-
-
     private JSONObject myMessage;
-
-
     private Bundle formData;
-
     private AppDatabase db;
 
     @Override
@@ -74,7 +74,6 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
     private void initializeFragment() {
         Fragment fragment;
         Class<? extends Fragment> fragmentClass = FormStepOne.class;
-
         try {
             fragment = fragmentClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
@@ -89,46 +88,42 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
 
     private void switchFragment() {
-        Fragment fragment;
         Class<? extends Fragment> fragmentClass = null;
-
         switch (currentForm) {
-            case 1: fragmentClass = FormStepOne.class; break;
-            case 2: fragmentClass = FormStepTwo.class; break;
-            case 3: fragmentClass = FormStepThree.class; break;
-            case 4: fragmentClass = FormStepFour.class; break;
-            case 5: fragmentClass = FormStepFive.class; break;
+            case 1:
+                fragmentClass = FormStepOne.class;
+                break;
+            case 2:
+                fragmentClass = FormStepTwo.class;
+                break;
+            case 3:
+                fragmentClass = FormStepThree.class;
+                break;
+            case 4:
+                fragmentClass = FormStepFour.class;
+                break;
+            case 5:
+                fragmentClass = FormStepFive.class;
+                break;
         }
 
         if (fragmentClass != null) {
             try {
-                fragment = fragmentClass.newInstance();
+                Fragment fragment = fragmentClass.newInstance();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.flContent, fragment)
+                        .commit();
             } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
-                return;
             }
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction()
-                    .replace(R.id.flContent, fragment)
-                    .commit();
         }
-
-    }
-
-    public void fragmentReplace(Fragment fragment, String tag) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.flContent, fragment, tag);
-        fragmentTransaction.addToBackStack(null); //this will add it to back stack
-        fragmentTransaction.commit();
     }
 
     public Fragment getCurrentFragment() {
-
         return getSupportFragmentManager().findFragmentById(R.id.flContent);
     }
-
 
     public void displayIncompleteFormDialog() {
         new AlertDialog.Builder(ParentFormWizard.this)
@@ -141,15 +136,18 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.next) {
-            if (currentForm < maximumFormCount)
+            if (currentForm < maximumFormCount) {
                 currentForm = currentForm + 1;
-            switchFragment();
+                switchFragment();
+            } else {
+                saveFormData();
+            }
         } else if (v.getId() == R.id.back) {
-            if (currentForm > 1)
+            if (currentForm > 1) {
                 currentForm = currentForm - 1;
-            switchFragment();
+                switchFragment();
+            }
         }
-
     }
 
     private void confirmExit() {
@@ -165,6 +163,153 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
     public void onBackPressed() {
         confirmExit();
     }
+
+    public void saveFormData() {
+        formData = this.getIntent().getExtras();
+        final SharedPreferences prefs = getApplicationContext().
+                getSharedPreferences(getResources().getString(R.string.app_prefs), MODE_PRIVATE);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.confirm_heading)
+                .setMessage(R.string.confirm_paragraph)
+                .setCancelable(false)
+                .setNegativeButton(android.R.string.no, (dialog, id) -> {
+                })
+                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
+                    myMessage = new JSONObject();
+                    try {
+                        myMessage.put("authToken", prefs.
+                                getString("AuthToken", null));
+                        myMessage.put("villageStreetId",
+                               formData.get("villageStreetId"));
+                        myMessage.put("landPlotId",
+                               formData.get("landPlotId"));
+                        myMessage.put("notableLandmarks",
+                               formData.get("notableLandmarks"));
+                        myMessage.put("propertyAccessibilityIds",
+                               formData.get("propertyAccessibilityIds"));
+                        myMessage.put("accessibilityRoadName",
+                               formData.get("accessibilityRoadName"));
+                        myMessage.put("isNeighbourOfValuableProject",
+                               formData.get("isNeighbourOfValuableProject"));
+                        myMessage.put("valuableProjectName",
+                               formData.get("valuableProjectName"));
+
+                        myMessage.put("roadInfrastructureQualityIds",
+                               formData.get("roadInfrastructureQualityIds"));
+                        myMessage.put("hasTitle",
+                               formData.get("hasTitle"));
+                        myMessage.put("propertyAccessibilityIds",
+                               formData.get("propertyAccessibilityIds"));
+                        myMessage.put("whenTitleAcquired",
+                               formData.get("whenTitleAcquired"));
+                        myMessage.put("plotSize",
+                               formData.get("plotSize"));
+                        myMessage.put("landUseId",
+                               formData.get("landUseId"));
+                        myMessage.put("propertySizeId",
+                                formData.get("propertySizeId"));
+                        myMessage.put("accommodationDetailsIds",
+                               formData.get("accommodationDetailsIds"));
+
+                        myMessage.put("landDevelopmentStatus",
+                               formData.get("landDevelopmentStatus"));
+                        myMessage.put("numberOfBuildings",
+                               formData.get("numberOfBuildings"));
+                        myMessage.put("buildingTypeIds",
+                               formData.get("buildingTypeIds"));
+                        myMessage.put("servantQuarterSize",
+                                formData.get("servantQuarterSize"));
+                        myMessage.put("propertyConditionId",
+                               formData.get("propertyConditionId"));
+                        myMessage.put("hasMortgage", formData.
+                                getString("hasMortgage"));
+                        myMessage.put("mortgageCreditFacilityId",
+                               formData.get("mortgageCreditFacilityId"));
+
+                        myMessage.put("servicesAmenitiesIds",
+                               formData.get("servicesAmenitiesIds"));
+                        myMessage.put("otherServicesAmenities",
+                               formData.get("otherServicesAmenities"));
+                        myMessage.put("whenPlotWasPurchased",
+                               formData.get("whenPlotWasPurchased"));
+                        myMessage.put("landAcquisitionId",
+                               formData.get("landAcquisitionId"));
+                        myMessage.put("otherWayLandWasAcquired",
+                               formData.get("otherWayLandWasAcquired"));
+                        myMessage.put("howMuchWasPaidToAcquireLand",
+                               formData.get("howMuchWasPaidToAcquireLand"));
+
+                        myMessage.put("landAcquisitionFundSourceId",
+                               formData.get("landAcquisitionFundSourceId"));
+                        myMessage.put("otherSourceOfFunds",
+                               formData.get("otherSourceOfFunds"));
+                        myMessage.put("landAcquisitionSourceOfInfoId",
+                               formData.get("landAcquisitionSourceOfInfoId"));
+                        myMessage.put("otherSourceOfInfo",
+                               formData.get("otherSourceOfInfo"));
+                        myMessage.put("awareOfSale",
+                               formData.get("awareOfSale"));
+                        myMessage.put("propertySaleTypeId",
+                               formData.get("propertySaleTypeId"));
+                        myMessage.put("sellingPrice",
+                               formData.get("sellingPrice"));
+                        myMessage.put("identifier", Action.getUUID());
+
+                        Log.e(getResources().getString(R.string.app_prefs),myMessage.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    RequestQueue queue = Action.getInstance(getApplicationContext()).
+                            getRequestQueue();
+                    mProgressDialog.setIndeterminate(true);
+                    mProgressDialog.setMessage(getResources().getString(R.string.loader_text));
+                    mProgressDialog.setCancelable(false);
+                    mProgressDialog.show();
+
+                    String URL = Action.getRequestURL("/valuation-register");
+
+                    JsonObjectRequest myReq = new JsonObjectRequest(
+                            Request.Method.POST,
+                            URL,
+                            myMessage,
+                            response -> {
+                                mProgressDialog.dismiss();
+                                final String status = Action.
+                                        getFieldValue(response, "status");
+                                final String description = Action.
+                                        getFieldValue(response, "status_description");
+
+                                new AlertDialog.Builder(ParentFormWizard.this)
+                                        .setTitle(R.string.h_results)
+                                        .setMessage(description)
+                                        .setPositiveButton(android.R.string.yes, (dialog1, id) -> {
+                                            if (status.equals("PASS"))
+                                                finish();
+                                        }).show();
+                            },
+                            ex -> {
+                                String message = Action.parseErrorResponse(ex);
+                                mProgressDialog.dismiss();
+                                new AlertDialog.Builder(ParentFormWizard.this)
+                                        .setTitle(R.string.h_error_details)
+                                        .setMessage(message + "\n\n" +
+                                                getResources().getString(R.string.offline_stored))
+                                        .setNegativeButton(android.R.string.no, (dialogNo, id) -> {
+                                        })
+                                        .setPositiveButton(android.R.string.yes,
+                                                (dialogOk, id) -> finish()
+                                        ).show();
+                            }
+                    );
+
+                    myReq.setRetryPolicy(new DefaultRetryPolicy(30000,
+                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                    queue.add(myReq);
+                }).show();
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -190,14 +335,15 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
             }
 
             runOnUiThread(() -> {
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getCurrentFragment().requireActivity(),
+                ArrayAdapter<String> arrayAdapter =
+                        new ArrayAdapter<>(getCurrentFragment().requireActivity(),
                         R.layout.dropdown_item, data);
                 widget.setAdapter(arrayAdapter);
             });
         });
     }
 
-    public void initializeSimpleDropdownLists(AutoCompleteTextView widget, String [] data) {
+    public void initializeSimpleDropdownLists(AutoCompleteTextView widget, String[] data) {
 
         AppExecutors.getInstance().diskIO().execute(() -> {
 
@@ -210,7 +356,8 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    public void getConfigurationItemId(String type, String description, ConfigurationQueryResultsCallback callback) {
+    public void getConfigurationItemId(String type, String description,
+                                       ConfigurationQueryResultsCallback callback) {
 
         AppExecutors.getInstance().diskIO().execute(() -> {
             Configuration configuration = db.configurationDao().
@@ -219,7 +366,8 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    public void getDialogSelector(EditText editText, String type, int heading, ConfigurationQueryResultsCallback callback) {
+    public void getDialogSelector(EditText editText, String type, int heading,
+                                  ConfigurationQueryResultsCallback callback) {
         String selectedValuesText = editText.getText().toString();
 
         AppExecutors.getInstance().diskIO().execute(() -> {
@@ -247,20 +395,26 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
             runOnUiThread(() -> {
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle(heading)
-                        .setMultiChoiceItems(data, checkedValues, (dialog1, indexSelected, isChecked) -> {
+                        .setMultiChoiceItems(data, checkedValues,
+                                (dialog1, indexSelected, isChecked) -> {
                             if (isChecked) {
                                 selectedItems.add(data[indexSelected]);
-                                callback.onDataReceived(configurations.get(indexSelected), "checked");
+                                callback.onDataReceived(configurations.get(indexSelected),
+                                        "checked");
                             } else {
                                 selectedItems.remove(data[indexSelected]);
-                                callback.onDataReceived(configurations.get(indexSelected), "unchecked");
+                                callback.onDataReceived(configurations.get(indexSelected),
+                                        "unchecked");
                             }
                         }).setPositiveButton("OK", (dialogOk, id) -> {
                             String selectedItemsText = selectedItems.toString();
-                            selectedItemsText = selectedItemsText.replace('[', ' ');
-                            selectedItemsText = selectedItemsText.replace(']', ' ');
+                            selectedItemsText = selectedItemsText.
+                                    replace('[', ' ');
+                            selectedItemsText = selectedItemsText.
+                                    replace(']', ' ');
                             editText.setText(selectedItemsText);
-                        }).setNegativeButton("Cancel", (dialogCancel, id) -> {
+                        }).setNegativeButton("Cancel",
+                                (dialogCancel, id) -> {
                         }).create();
                 dialog.show();
             });
@@ -269,13 +423,13 @@ public class ParentFormWizard extends AppCompatActivity implements View.OnClickL
 
     }
 
-    public void setBoundWidgetData(AutoCompleteTextView widget, String value){
+    public void setBoundWidgetData(AutoCompleteTextView widget, String value) {
         if (value != null && widget != null) {
             widget.setText(value);
         }
     }
 
-    public void setBoundWidgetData(EditText widget, String value){
+    public void setBoundWidgetData(EditText widget, String value) {
         if (value != null && widget != null) {
             widget.setText(value);
         }

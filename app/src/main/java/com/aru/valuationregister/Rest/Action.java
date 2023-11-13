@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 
 
 /**
@@ -68,8 +69,8 @@ public class Action {
 
         String apiURL = prefs.getString("apiURL", null);
 
-        if (apiURL == null || 1 == 1) {
-            String defaultURL = "http://192.168.43.71:8000/api/client";
+        if (apiURL == null) {
+            String defaultURL = "http://valuation.dataset.co.tz/api/client";
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("apiURL", defaultURL);
             editor.apply();
@@ -153,6 +154,11 @@ public class Action {
     public static boolean arrayContains(String[] arr, String targetValue) {
         return Arrays.asList(arr).contains(targetValue);
     }
+
+    public static String getUUID() {
+        return UUID.randomUUID().toString();
+    }
+
 
 
     public static boolean strCompare(String strOne, String strTwo) {
